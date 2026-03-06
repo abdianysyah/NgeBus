@@ -1,17 +1,63 @@
 <script setup>
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import { RouterLink } from 'vue-router';
-import { Eye } from "lucide-vue-next";
+import { ref } from "vue"
+import { login } from "@/services/auth"
+import AuthLayout from "@/layouts/AuthLayout.vue"
+import { RouterLink, useRouter } from "vue-router"
+import { Eye } from "lucide-vue-next"
+import Swal from "sweetalert2"
 
+const router = useRouter()
+
+const email = ref("")
+const password = ref("")
+const showPassword = ref(false)
+
+
+const togglePassword = () => {
+    showPassword.value = !showPassword.value
+}
+
+const handleLogin = async () => {
+  try {
+    const res = await login({
+      email: email.value,
+      password: password.value
+    })
+
+    localStorage.setItem("token", res.data.token)
+    localStorage.setItem("role", res.data.role)
+
+    await Swal.fire({
+      icon: "success",
+      title: "Login Berhasil",
+      text: "Selamat datang kembali",
+      timer: 1500,
+      showConfirmButton: false
+    })
+
+    if (res.data.role === "admin") {
+      router.push("/admin/dashboard")
+    } else {
+      router.push("/dashboard")
+    }
+
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Login gagal",
+      text: "Email atau password salah"
+    })
+  }
+}
 </script>
 
 <template>
     <AuthLayout>
-        <form action="" method="post">
+        <form @submit.prevent="handleLogin" method="POST">
             <!-- Email -->
             <div class="mb-5">
                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Alamat Email</label>
-                <input type="email" id="email" placeholder="nama@email.com" 
+                <input v-model="email" type="email" id="email" placeholder="nama@email.com" 
                        class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition">
             </div>
             
@@ -19,9 +65,9 @@ import { Eye } from "lucide-vue-next";
             <div class="mb-3">
                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">Kata Sandi</label>
                 <div class="relative">
-                    <input type="password" id="password" placeholder="••••••••" 
+                    <input v-model="password" :type="showPassword ? 'text' : 'password' " id="password" placeholder="••••••••" 
                            class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition">
-                    <button type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
+                    <button @click="togglePassword" type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
                         <Eye id="toggleIcon" />
                     </button>
                 </div>

@@ -6,19 +6,22 @@ import (
 	"github.com/abdianysyah/backend/middlewares"
 )
 
-func SetupRoutes(router *gin.Engine)  {
-	router.POST("/register", controllers.Register)
-	router.POST("/login", controllers.Login)
-
-	user := router.Group("/user")
-	user.Use(middlewares.AuthMiddleware())
+func UserRoutes(router *gin.Engine)  {
+	api := router.Group("/api")
 	{
-		// user.GET("/profile", controllers.Por)
+		api.POST("/register", controllers.Register)
+		api.POST("/login", controllers.Login)
 	}
 
-	admin := router.Group("/admin")
+	user := router.Group("/api/user")
+	user.Use(middlewares.AuthMiddleware())
+	{
+		user.GET("/dashboard", controllers.UserDashboard)
+	}
+
+	admin := router.Group("/api/admin")
 	admin.Use(middlewares.AuthMiddleware(), middlewares.AdminOnly())
 	{
-		// admin.GET("/dashboard", )
+		admin.GET("/dashboard", controllers.AdminDashboard)
 	}
 }
