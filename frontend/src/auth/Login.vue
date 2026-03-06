@@ -53,7 +53,7 @@ const handleLogin = async () => {
 
 <template>
     <AuthLayout>
-        <form @submit.prevent="handleLogin" method="POST">
+        <form @submit.prevent="handleLogin">
             <!-- Email -->
             <div class="mb-5">
                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Alamat Email</label>
@@ -75,10 +75,10 @@ const handleLogin = async () => {
             
             <!-- Lupa Password & Remember me (opsional) -->
             <div class="flex items-center justify-between mb-6">
-                <label class="flex items-center text-sm text-gray-600">
+                <!-- <label class="flex items-center text-sm text-gray-600">
                     <input type="checkbox" class="rounded border-gray-300 text-orange-500 focus:ring-orange-500 mr-2">
                     Ingat saya
-                </label>
+                </label> -->
                 <a href="#" class="text-sm text-orange-600 hover:text-orange-700 font-medium">Lupa kata sandi?</a>
             </div>
             
