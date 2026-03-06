@@ -2,8 +2,10 @@
 import { onMounted, ref } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Bus, Ticket, Users } from 'lucide-vue-next';
+import Modal from '@/components/ui/Modal.vue';
 import { Chart } from 'chart.js/auto';
 
+const showModal = ref(false)
 const monthlyChart = ref(null)
 const statusChart = ref(null)
 
@@ -64,6 +66,13 @@ onMounted(() => {
 
 })
 
+const openModal = () => {
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+}
 
 </script>
 
@@ -120,5 +129,12 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+        <!-- <button @click="openModal" class="px-2 py-3 bg-amber-600 rounded-xl">
+            Testing Modal
+        </button>
+
+        <Modal :show="showModal" @close="closeModal">
+            <p>Test Modal cuy</p>
+        </Modal> -->
     </AdminLayout>
 </template>
