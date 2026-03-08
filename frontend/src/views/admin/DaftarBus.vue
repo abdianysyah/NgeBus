@@ -1,6 +1,36 @@
 <script setup>
 import { PlusCircle, Search, Edit2Icon, Trash } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import { nextTick, onMounted, ref } from 'vue';
+import { getDataBus } from '@/services/auth';
+import Modal from '@/components/ui/Modal.vue';
+
+const showModal = ref(false)
+const bus = ref([])
+
+const getAllDataBus = async () => {
+    try {
+        const res = await getDataBus()
+        bus.value = res.data.data
+
+        await nextTick()
+    } catch {
+        console.error(error);
+    }
+}
+
+const openModal = () => {
+    showModal.value = true
+}
+
+const closeModal = () => {
+    showModal.value = false
+}
+
+onMounted(() => {
+    getAllDataBus()
+})
+
 </script>
 
 <template>
@@ -11,7 +41,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
                 <p class="text-gray-600">Daftar semua armada bus yang terdaftar.</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <button class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
+                <button @click="openModal" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
                     <PlusCircle class="mr-2" /> Tambah Bus
                 </button>
             </div>
@@ -46,21 +76,21 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plat Nomor</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Bus</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                            <!-- <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th> -->
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kapasitas</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">B 1234 AB</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Sanjaya Putra</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Eksklusif</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">48</td>
+                        <tr v-for="(item, index) in bus" :key="item.id" class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.bus_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.bus_name }}</td>
+                            <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Eksklusif</td> -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.total_seats }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Aktif</span>
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">{{ item.status }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap-text-sm text-gray-700">
                                 <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit">
@@ -84,5 +114,78 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
                 </div>
             </div>
         </div>
+
+        <!-- Modal -->
+        <Modal :show="showModal" @close="closeModal">
+<form @submit.prevent="submitBus">
+
+        <div class="space-y-4">
+
+            <!-- Nama Bus -->
+            <div>
+                <label class="block text-sm font-medium">Nama Bus</label>
+                <input 
+                    type="text"
+                    class="w-full border rounded-lg px-3 py-2"
+                    placeholder="Masukkan nama bus"
+                />
+            </div>
+
+            <!-- Nomor Plat -->
+            <div>
+                <label class="block text-sm font-medium">Nomor Plat</label>
+                <input 
+                    type="text"
+                    class="w-full border rounded-lg px-3 py-2"
+                    placeholder="Contoh: B 1234 ABC"
+                />
+            </div>
+
+            <!-- Kapasitas -->
+            <div>
+                <label class="block text-sm font-medium">Kapasitas Kursi</label>
+                <input 
+                    type="number"
+                    class="w-full border rounded-lg px-3 py-2"
+                    placeholder="Jumlah kursi"
+                />
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label class="block text-sm font-medium">Status</label>
+                <select 
+                    class="w-full border rounded-lg px-3 py-2"
+                >
+                    <option value="active">Active</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- Button -->
+        <div class="flex justify-end gap-2 mt-6">
+
+            <button 
+                type="button"
+                @click="closeModal"
+                class="px-4 py-2 bg-gray-200 rounded"
+            >
+                Cancel
+            </button>
+
+            <button 
+                type="submit"
+                class="px-4 py-2 bg-orange-500 text-white rounded"
+            >
+                Simpan
+            </button>
+
+        </div>
+
+    </form>
+        </Modal>
     </AdminLayout>
 </template>
