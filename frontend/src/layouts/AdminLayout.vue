@@ -1,11 +1,17 @@
 <script setup>
 import { ref } from 'vue';
 import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon  } from 'lucide-vue-next';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink, useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 
+const route = useRoute()
 const router = useRouter()
 const sidebarOpen = ref(false)
+
+const isActive = (path) => {
+    return route.path === path
+}
+
 const toggleSidebar = () => {
     sidebarOpen.value = !sidebarOpen.value
 }
@@ -40,13 +46,14 @@ const logout = () => {
             </button>
             <RouterLink to="/admin/dashboard" class="text-3xl font-bold text-blue-800 tracking-tight block mb-8">
                 Nge<span class="text-orange-500">Bus</span>
+                <span class="text-sm bg-orange-100 text-orange-600 px-2 py-1 rounded-full ml-2">Admin</span>
             </RouterLink>
             <nav class="space-y-1">
-                <RouterLink to="" class="flex items-center space-x-3 px-4 py-3 bg-orange-50 text-orange-600 rounded-xl font-medium">
+                <RouterLink to="/admin/dashboard" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/dashboard') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
                     <LayoutDashboard class="w-5" />
                     <span>Dashboard</span>
                 </RouterLink>
-                <RouterLink to="" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition">
+                <RouterLink to="/admin/data-bus" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-bus') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <BusFrontIcon class="w-5" />
                     <span>Kelola Bus</span>
                 </RouterLink>

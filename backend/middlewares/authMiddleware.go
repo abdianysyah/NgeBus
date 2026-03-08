@@ -22,7 +22,17 @@ func AuthMiddleware() gin.HandlerFunc  {
 			return
 		}
 
-		tokenString := strings.Split(authHeader, "")[1]
+		parts := strings.Split(authHeader, " ")
+
+		if len(parts) != 2 {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error" : "Invalid authoriztion header",
+			})
+			c.Abort()
+			return
+		}
+
+		tokenString := parts[1]
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return SECRET_KEY, nil

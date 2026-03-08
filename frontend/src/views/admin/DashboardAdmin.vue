@@ -1,30 +1,43 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Bus, Ticket, Users } from 'lucide-vue-next';
 import Modal from '@/components/ui/Modal.vue';
 import { Chart } from 'chart.js/auto';
+import { countData } from '@/services/auth';
 
 const showModal = ref(false)
 const monthlyChart = ref(null)
 const statusChart = ref(null)
+const dashboardData = ref({})
+const ChartData = ref([])
 
-onMounted(() => {
+const getDashboardData = async () => {
+    try {
+        const res = await countData()
+        dashboardData.value = res.data.data
+        const currentMonth = new Date().getMonth() + 1
+        ChartData.value = res.data.data.monthly_orders.slice(0, currentMonth)
+
+        await nextTick()
+        createChart()
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const createChart = () => {
     new Chart(monthlyChart.value, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
             datasets: [{
                 label: 'Jumlah Pemesanan',
-                data: [320, 450, 480, 520, 600, 750, 820, 910, 870, 940, 1020, 1150],
+                data: ChartData.value,
                 borderColor: '#f97316',
                 backgroundColor: 'rgba(249, 115, 22, 0.1)',
                 tension: 0.3,
                 fill: true,
-                pointBackgroundColor: '#f97316',
-                pointBorderColor: '#fff',
-                pointRadius: 4,
-                pointHoverRadius: 6
             }]
         },
         options: {
@@ -37,7 +50,10 @@ onMounted(() => {
                 y: { beginAtZero: true }
             }
         }
-    });
+    })
+}
+
+onMounted(() => {
 
     new Chart(statusChart.value, {
         type: 'doughnut',
@@ -63,7 +79,7 @@ onMounted(() => {
         }
     });
 
-
+    getDashboardData()
 })
 
 const openModal = () => {
@@ -87,7 +103,7 @@ const closeModal = () => {
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
                 <div>
                     <p class="text-sm text-gray-500">Total Bus</p>
-                    <p class="text-2xl font-bold text-gray-800">124</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ dashboardData.total_bus }}</p>
                 </div>
                 <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center text-blue-600">
                     <Bus class="w-7 h-7" />
@@ -96,7 +112,7 @@ const closeModal = () => {
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
                 <div>
                     <p class="text-sm text-gray-500">Total Pemesanan Tiket</p>
-                    <p class="text-2xl font-bold text-gray-800">342</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ dashboardData.total_orders }}</p>
                 </div>
                 <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center text-green-600">
                     <Ticket class="w-7 h-7" />
@@ -105,7 +121,7 @@ const closeModal = () => {
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
                 <div>
                     <p class="text-sm text-gray-500">Total Pengguna</p>
-                    <p class="text-2xl font-bold text-gray-800">350</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ dashboardData.total_users }}</p>
                 </div>
                 <div class="bg-orange-100 w-12 h-12 rounded-full flex items-center justify-center text-orange-600">
                     <Users class="w-7 h-7" />

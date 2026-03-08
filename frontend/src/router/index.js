@@ -5,6 +5,7 @@ import Register from '@/auth/Register.vue'
 import DashboardAdmin from '@/views/admin/DashboardAdmin.vue'
 import DashboardUser from '@/views/user/DashboardUser.vue'
 import NotFound from '@/views/error/NotFound.vue'
+import DaftarBus from '@/views/admin/DaftarBus.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,11 @@ const router = createRouter({
       path: "/admin/dashboard",
       name: 'Dashboard Admin',
       component: DashboardAdmin
+    },
+    {
+      path: "/admin/data-bus",
+      name: 'Daftar Bus',
+      component: DaftarBus
     },
     {
       path: "/dashboard",

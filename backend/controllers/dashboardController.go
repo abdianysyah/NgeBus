@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/abdianysyah/backend/database"
 	"github.com/abdianysyah/backend/models"
@@ -36,6 +37,27 @@ func AdminDashboard(c *gin.Context)  {
 	database.DB.Model(&models.Bus{}).Count(&totalBus)
 	database.DB.Model(&models.Schedule{}).Count(&totalSchedules)
 
+	currentYear := time.Now().Year()
+
+	type Result struct {
+		Month int
+		Total int
+	}
+
+	var result []Result
+
+	database.DB.Model(&models.Order{}).
+		Select("MONTH(created_at) as month, COUNT(*) as total").
+		Where("YEAR(created_at) = ?", currentYear).
+		Group("MONTH(created_at)").
+		Scan(&result)
+
+	monthlyOrders := make([]int, 12)
+
+	for _, r := range result {
+		monthlyOrders[r.Month-1] = r.Total
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Admin dashboard data",
 		"data": gin.H{
@@ -43,6 +65,7 @@ func AdminDashboard(c *gin.Context)  {
 			"total_orders": totalOrders,
 			"total_bus": totalBus,
 			"total_schedules": totalSchedules,
+			"monthly_orders": monthlyOrders,
 		},
 	})
 }
