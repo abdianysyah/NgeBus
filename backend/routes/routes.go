@@ -7,15 +7,17 @@ import (
 )
 
 func UserRoutes(router *gin.Engine)  {
-	api := router.Group("/api")
+	auth := router.Group("/api")
 	{
-		api.POST("/register", controllers.Register)
-		api.POST("/login", controllers.Login)
+		auth.POST("/register", controllers.Register)
+		auth.POST("/login", controllers.Login)
 	}
 
-	user := router.Group("/api/user")
+	user := router.Group("/api/")
 	user.Use(middlewares.AuthMiddleware())
 	{
+		user.GET("/bus", controllers.GetAllBus)
+		user.GET("/bus/:id", controllers.GetBusByID)
 		user.GET("/dashboard", controllers.UserDashboard)
 	}
 
@@ -23,5 +25,8 @@ func UserRoutes(router *gin.Engine)  {
 	admin.Use(middlewares.AuthMiddleware(), middlewares.AdminOnly())
 	{
 		admin.GET("/dashboard", controllers.AdminDashboard)
+		admin.POST("/bus", controllers.CreateBus)
+		admin.PUT("/bus/:id", controllers.UpdateBus)
+		admin.DELETE("/bus/:id", controllers.DeleteBus)
 	}
 }
