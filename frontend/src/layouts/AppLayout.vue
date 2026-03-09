@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { 
     Menu,
     FacebookIcon,
@@ -10,10 +10,12 @@ import {
     MapIcon
     
 } from 'lucide-vue-next';
+const isLogin = ref(false)
 
-import Modal from '@/components/ui/Modal.vue';
-
-const showModal = ref(false)
+onMounted(() => {
+    const token = localStorage.getItem('token')
+    
+})
 </script>
 
 <template>

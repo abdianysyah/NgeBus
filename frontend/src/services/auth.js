@@ -19,3 +19,7 @@ export const getDataBus = (data) => {
         params: data
     })
 }
+
+export const addBus = (data) => {
+    return api.post("/bus", data)
+}

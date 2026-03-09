@@ -48,19 +48,19 @@ const closeModal = () => {
             class="relative bg-white rounded-xl shadow-xl w-125 p-6"
           >
             <h2 class="text-lg font-semibold mb-4">
-              Modal Title
+              {{ title }}
             </h2>
 
             <slot />
 
-            <div class="flex justify-end mt-4">
+            <!-- <div class="flex justify-end mt-4">
               <button
                 @click="closeModal"
                 class="px-4 py-2 bg-gray-500 text-white rounded-lg"
               >
                 Close
               </button>
-            </div>
+            </div> -->
           </div>
         </Transition>
 

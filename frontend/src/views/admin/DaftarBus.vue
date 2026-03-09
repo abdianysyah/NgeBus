@@ -2,11 +2,41 @@
 import { PlusCircle, Search, Edit2Icon, Trash } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { nextTick, onMounted, ref } from 'vue';
-import { getDataBus } from '@/services/auth';
+import { getDataBus, addBus } from '@/services/auth';
 import Modal from '@/components/ui/Modal.vue';
+import Swal from 'sweetalert2';
 
 const showModal = ref(false)
 const bus = ref([])
+
+const form = ref({
+    bus_name: '',
+    bus_number: '',
+    total_seats: '',
+    status: '',
+})
+
+const submitBus = async () => {
+    try {
+        await addBus(form.value)
+        closeModal()
+        getAllDataBus()
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: 'Data telah berhasil ditambahkan',
+            showCloseButton: false
+        })
+    } catch (error) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Gagal',
+            text: error.response?.data?.error || 'Terjadi Kesalahan',
+            showCancelButton: false
+        })
+    }
+}
 
 const getAllDataBus = async () => {
     try {
@@ -117,75 +147,37 @@ onMounted(() => {
 
         <!-- Modal -->
         <Modal :show="showModal" @close="closeModal">
-<form @submit.prevent="submitBus">
+            <form @submit.prevent="submitBus">
+                <div class="space-y-4">
+                    <div>
+                        <label for="nama_bus" class="block text-sm font-medium">Nama Bus</label>
+                        <input v-model="form.bus_name" type="text" name="nama_bus" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Masukkan Nama Bus">
+                    </div>
 
-        <div class="space-y-4">
+                    <div>
+                        <label for="no_plat" class="block text-sm font-medium">Nomor Plat Bus</label>
+                        <input v-model="form.bus_number" type="text" name="no_plat" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Ex: B 1234 AV">
+                    </div>
 
-            <!-- Nama Bus -->
-            <div>
-                <label class="block text-sm font-medium">Nama Bus</label>
-                <input 
-                    type="text"
-                    class="w-full border rounded-lg px-3 py-2"
-                    placeholder="Masukkan nama bus"
-                />
-            </div>
+                    <div>
+                        <label for="total_kursi" class="block text-sm font-medium">Kapasitas Kursi</label>
+                        <input v-model="form.total_seats" type="number" name="total_kursi" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Jumlah Kursi">
+                    </div>
 
-            <!-- Nomor Plat -->
-            <div>
-                <label class="block text-sm font-medium">Nomor Plat</label>
-                <input 
-                    type="text"
-                    class="w-full border rounded-lg px-3 py-2"
-                    placeholder="Contoh: B 1234 ABC"
-                />
-            </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium">Status</label>
+                        <select v-model="form.status" name="status" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition">
+                            <option value="active">Aktif</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="inactive">Tidak Aktif</option>
+                        </select>
+                    </div>
+                </div>
 
-            <!-- Kapasitas -->
-            <div>
-                <label class="block text-sm font-medium">Kapasitas Kursi</label>
-                <input 
-                    type="number"
-                    class="w-full border rounded-lg px-3 py-2"
-                    placeholder="Jumlah kursi"
-                />
-            </div>
-
-            <!-- Status -->
-            <div>
-                <label class="block text-sm font-medium">Status</label>
-                <select 
-                    class="w-full border rounded-lg px-3 py-2"
-                >
-                    <option value="active">Active</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-
-        </div>
-
-        <!-- Button -->
-        <div class="flex justify-end gap-2 mt-6">
-
-            <button 
-                type="button"
-                @click="closeModal"
-                class="px-4 py-2 bg-gray-200 rounded"
-            >
-                Cancel
-            </button>
-
-            <button 
-                type="submit"
-                class="px-4 py-2 bg-orange-500 text-white rounded"
-            >
-                Simpan
-            </button>
-
-        </div>
-
-    </form>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="submit" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">Simpan</button>
+                </div>
+            </form>
         </Modal>
     </AdminLayout>
 </template>
