@@ -23,3 +23,11 @@ export const getDataBus = (params) => {
 export const addBus = (data) => {
     return api.post("/bus", data)
 }
+
+export const editBus = (id, data) => {
+    return api.put(`/bus/${id}`, data)
+}
+
+export const deleteBus = (id) => {
+    return api.delete(`/bus/${id}`)
+}

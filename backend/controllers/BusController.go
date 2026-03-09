@@ -11,6 +11,7 @@ import (
 // get All Bus
 func GetAllBus(c *gin.Context)  {
 	search := c.Query("search")
+	status := c.Query("status")
 
 	var buses []models.Bus
 
@@ -23,6 +24,11 @@ func GetAllBus(c *gin.Context)  {
 			"%"+search+"%",
 		)
 	}
+
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
 	query.Find(&buses)
 
 	c.JSON(http.StatusOK, gin.H{
