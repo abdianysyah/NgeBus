@@ -18,13 +18,13 @@ func UserRoutes(router *gin.Engine)  {
 	{
 		user.GET("/bus", controllers.GetAllBus)
 		user.GET("/bus/:id", controllers.GetBusByID)
-		user.GET("/dashboard", controllers.UserDashboard)
+		user.GET("/user/dashboard", controllers.UserDashboard)
 	}
 
-	admin := router.Group("/api/admin")
+	admin := router.Group("/api/")
 	admin.Use(middlewares.AuthMiddleware(), middlewares.AdminOnly())
 	{
-		admin.GET("/dashboard", controllers.AdminDashboard)
+		admin.GET("/admin/dashboard", controllers.AdminDashboard)
 		admin.POST("/bus", controllers.CreateBus)
 		admin.PUT("/bus/:id", controllers.UpdateBus)
 		admin.DELETE("/bus/:id", controllers.DeleteBus)
