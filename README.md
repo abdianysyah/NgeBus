@@ -33,4 +33,4 @@ Proyek ini dibangun menggunakan arsitektur **Fullstack Modern**:
 
 ### Preview
 
-![Home](src/assets/img/preview.png)
+![Home](frontend/src/assets/img/preview.png)
