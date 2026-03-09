@@ -17,7 +17,10 @@ const togglePassword = () => {
     showPassword.value = !showPassword.value
 }
 
+const loading = ref(false)
+
 const handleLogin = async () => {
+  loading.value = true
   try {
     const res = await login({
       email: email.value,
@@ -47,6 +50,8 @@ const handleLogin = async () => {
       title: "Login gagal",
       text: "Email atau password salah"
     })
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -83,7 +88,31 @@ const handleLogin = async () => {
             </div>
             
             <!-- Tombol Login -->
-            <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition shadow-md">Masuk</button>
+            <button :disabled="loading" type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl flex justify-center transition shadow-md">
+              <!-- Spinner -->
+              <svg
+                  v-if="loading"
+                  class="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+              >
+                  <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                  ></circle>
+                  <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
+              </svg>
+              <span>{{ loading ? 'Loading...' : 'Login' }}</span>
+            </button>
             
             <!-- Link Daftar -->
             <p class="text-center text-gray-600 mt-6">

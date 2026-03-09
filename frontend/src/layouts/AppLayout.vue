@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { jwtDecode } from "jwt-decode";
 import { 
     Menu,
     FacebookIcon,
@@ -11,10 +12,14 @@ import {
     
 } from 'lucide-vue-next';
 const isLogin = ref(false)
-
+const role = ref(null)
 onMounted(() => {
     const token = localStorage.getItem('token')
-    
+    if (token) {
+        const decoded = jwtDecode(token)
+        role.value = decoded.role
+        isLogin.value = true
+    }
 })
 </script>
 
@@ -33,8 +38,16 @@ onMounted(() => {
                 </div>
 
                 <div class="hidden md:flex items-center space-x-3">
-                    <RouterLink to="/login" class="text-gray-700 hover:text-orange-500 font-medium transition">Masuk</RouterLink>
-                    <a href="#" class="bg-orange-500 text-white px-5 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm">Daftar</a>
+                    <template v-if="!isLogin">
+                        <RouterLink to="/login" class="text-gray-700 hover:text-orange-500 py-1">Login</RouterLink>
+                        <RouterLink to="/register" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Register</RouterLink>
+                    </template>
+                    <template v-else-if="role === 'admin'">
+                        <RouterLink to="/admin/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Dashboard</RouterLink>
+                    </template>
+                    <template v-else>
+                        <RouterLink to="/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm">Dashboard</RouterLink>
+                    </template>
                 </div>
 
                 <div class="md:hidden flex items-center">
@@ -52,8 +65,16 @@ onMounted(() => {
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Rute</a>
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Kontak</a>
             <div class="flex flex-col space-y-2 pt-3 border-t border-gray-200 mt-2">
-                <a href="" class="text-gray-700 hover:text-orange-500 py-1">Masuk</a>
-                <a href="" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Daftar</a>
+                <template v-if="!isLogin">
+                    <a href="" class="text-gray-700 hover:text-orange-500 py-1">Masuk</a>
+                    <a href="" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Daftar</a>
+                </template>
+                <template v-else-if="role === 'admin'">
+                    <RouterLink to="/admin/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Dashboard</RouterLink>
+                </template>
+                <template v-else>
+                    <RouterLink to="/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm">Dashboard</RouterLink>
+                </template>
             </div>
         </div>
     </nav>
