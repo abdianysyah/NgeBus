@@ -8,6 +8,8 @@ import Swal from 'sweetalert2';
 
 const showModal = ref(false)
 const bus = ref([])
+const search = ref('')
+const status = ref('')
 
 const form = ref({
     bus_name: '',
@@ -40,7 +42,10 @@ const submitBus = async () => {
 
 const getAllDataBus = async () => {
     try {
-        const res = await getDataBus()
+        const res = await getDataBus({
+            search: search.value,
+            status: status.value
+        })
         bus.value = res.data.data
 
         await nextTick()

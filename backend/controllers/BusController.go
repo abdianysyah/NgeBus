@@ -10,9 +10,20 @@ import (
 
 // get All Bus
 func GetAllBus(c *gin.Context)  {
+	search := c.Query("search")
+
 	var buses []models.Bus
 
-	database.DB.Find(&buses)
+	query := database.DB.Model(&models.Bus{})
+
+	if search != "" {
+		query = query.Where(
+			"bus_name LIKE ? OR bus_number LIKE ?",
+			"%"+search+"%",
+			"%"+search+"%",
+		)
+	}
+	query.Find(&buses)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data" : buses,

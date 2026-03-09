@@ -14,9 +14,9 @@ export const countData = (data) => {
     })
 }
 
-export const getDataBus = (data) => {
+export const getDataBus = (params) => {
     return api.get("/bus", {
-        params: data
+        params: params
     })
 }
 
