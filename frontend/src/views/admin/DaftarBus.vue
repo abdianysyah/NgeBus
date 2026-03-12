@@ -34,9 +34,11 @@ const submitBus = async () => {
     try {
         if (form.value.id) {
             await editBus(form.value.id, form.value)
+            resetForm()
             closemodalEdit()
         } else {
             await addBus(form.value)
+            resetForm()
             closeModal()
         }
         getAllDataBus()
@@ -93,8 +95,8 @@ const deleteDataBus = async (id) => {
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: '#f97316',
-        cancelButtonColor: '#6b7280',
-        confirmButtonColor: "Ya, Hapus!"
+        confirButtonColor: '#6b7280',
+        confirmButtonText: "Ya, Hapus!"
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
@@ -114,6 +116,16 @@ const deleteDataBus = async (id) => {
             }
         }
     })
+}
+
+const resetForm = () => {
+    form.value = {
+        id: null,
+        bus_name: '',
+        bus_number: '',
+        total_seats: '',
+        status: '',
+    }
 }
 
 onMounted(() => {
@@ -175,8 +187,8 @@ onMounted(() => {
                         <template v-if="bus.length > 0">
                             <tr v-for="(item, index) in bus" :key="item.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.bus_number }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.bus_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_name }}</td>
                                 <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Eksklusif</td> -->
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.total_seats }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">

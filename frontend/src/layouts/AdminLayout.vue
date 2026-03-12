@@ -57,11 +57,11 @@ const logout = () => {
                     <BusFrontIcon class="w-5" />
                     <span>Kelola Bus</span>
                 </RouterLink>
-                <RouterLink to="" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition">
+                <RouterLink to="/admin/data-route" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-route') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <RouteIcon class="w-5" />
                     <span>Kelola Rute</span>
                 </RouterLink>
-                <RouterLink to="" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition">
+                <RouterLink to="/admin/data-users" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-users') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <UserCircle class="w-5" />
                     <span>Kelola Pengguna</span>
                 </RouterLink>

@@ -6,6 +6,8 @@ import DashboardAdmin from '@/views/admin/DashboardAdmin.vue'
 import DashboardUser from '@/views/user/DashboardUser.vue'
 import NotFound from '@/views/error/NotFound.vue'
 import DaftarBus from '@/views/admin/DaftarBus.vue'
+import DaftarRoute from '@/views/admin/DaftarRoute.vue'
+import DaftarUser from '@/views/admin/DaftarUser.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +36,16 @@ const router = createRouter({
       path: "/admin/data-bus",
       name: 'Daftar Bus',
       component: DaftarBus
+    },
+    {
+      path: "/admin/data-route",
+      name: 'Daftar Rute',
+      component: DaftarRoute
+    },
+    {
+      path: "/admin/data-users",
+      name: 'Daftar Pengguna',
+      component: DaftarUser 
     },
     {
       path: "/dashboard",
