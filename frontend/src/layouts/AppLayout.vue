@@ -13,6 +13,13 @@ import {
 } from 'lucide-vue-next';
 const isLogin = ref(false)
 const role = ref(null)
+const mobileMenu = ref(false)
+const toggleMenu = () => {
+    mobileMenu.value = !mobileMenu.value
+}
+const closeMenu = () => {
+    mobileMenu.value = false
+}
 onMounted(() => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -27,11 +34,13 @@ onMounted(() => {
     <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
-                <a href="#" class="text-2xl font-bold text-blue-800 tracking-tight">Nge<span class="text-orange-500">Bus</span></a>
+                <a href="#" class="text-2xl font-bold text-blue-800 tracking-tight">
+                    <img src="@/assets/img/logo_ngebus.webp" alt="logo" class="h-15">
+                </a>
 
                 <div class="hidden md:flex space-x-8 text-gray-700 font-medium">
-                    <a href="" class="hover:text-orange-500 transition">Beranda</a>
-                    <a href="" class="hover:text-orange-500 transition">Bus</a>
+                    <RouterLink to="/" class="hover:text-orange-500 transition">Beranda</RouterLink>
+                    <RouterLink to="/bus" class="hover:text-orange-500 transition">Bus</RouterLink>
                     <a href="" class="hover:text-orange-500 transition">Tiket</a>
                     <a href="" class="hover:text-orange-500 transition">Rute</a>
                     <a href="" class="hover:text-orange-500 transition">Kontak</a>
@@ -46,19 +55,19 @@ onMounted(() => {
                         <RouterLink to="/admin/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Dashboard</RouterLink>
                     </template>
                     <template v-else>
-                        <RouterLink to="/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm">Dashboard</RouterLink>
+                        <RouterLink to="/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm ease-in-out duration-500">Dashboard</RouterLink>
                     </template>
                 </div>
 
                 <div class="md:hidden flex items-center">
-                    <button class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <button @click="toggleMenu" class="text-gray-600 hover:text-gray-900 focus:outline-none">
                         <Menu class="text-2xl" />
                     </button>
                 </div>
             </div>
         </div>
 
-        <div id="" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2">
+        <div v-show="mobileMenu" class="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2">
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Beranda</a>
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Bus</a>
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Tiket</a>
@@ -66,14 +75,15 @@ onMounted(() => {
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Kontak</a>
             <div class="flex flex-col space-y-2 pt-3 border-t border-gray-200 mt-2">
                 <template v-if="!isLogin">
-                    <a href="" class="text-gray-700 hover:text-orange-500 py-1">Masuk</a>
-                    <a href="" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Daftar</a>
+                    <RouterLink to="/login"></RouterLink>
+                    <a href="" class="px-4 py-2 hover:bg-orange-100 rounded-full text-center text-gray-700 hover:text-orange-500 transition">Masuk</a>
+                    <a href="" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center transition">Daftar</a>
                 </template>
                 <template v-else-if="role === 'admin'">
                     <RouterLink to="/admin/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 text-center">Dashboard</RouterLink>
                 </template>
                 <template v-else>
-                    <RouterLink to="/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm">Dashboard</RouterLink>
+                    <RouterLink to="/dashboard" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition font-medium shadow-sm ease-in-out">Dashboard</RouterLink>
                 </template>
             </div>
         </div>

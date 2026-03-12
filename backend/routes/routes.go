@@ -16,9 +16,9 @@ func UserRoutes(router *gin.Engine)  {
 	user := router.Group("/api/")
 	user.Use(middlewares.AuthMiddleware())
 	{
+		user.GET("/user/dashboard", controllers.UserDashboard)
 		user.GET("/bus", controllers.GetAllBus)
 		user.GET("/bus/:id", controllers.GetBusByID)
-		user.GET("/user/dashboard", controllers.UserDashboard)
 	}
 
 	admin := router.Group("/api/")
