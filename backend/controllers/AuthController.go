@@ -12,15 +12,15 @@ import (
 
 func Register(c *gin.Context)  {
 	var input struct {
-		Name		string `json:"name"`
-		Email		string `json:"email"`
-		Phone		string `json:"phone"`
-		Password	string `json:"password"`
-	}	
+		Name		string	`json:"name"`
+		Email		string	`json:"email"`
+		Phone		string	`json:"phone"`
+		Password	string	`json:"password"`
+	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error" : err.Error(),
 		})
 		return
 	}
@@ -28,11 +28,11 @@ func Register(c *gin.Context)  {
 	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(input.Password), 14)
 
 	user := models.User{
-		Name:	input.Name,
-		Email:	input.Email,
-		Phone:	input.Phone,
+		Name: input.Name,
+		Email: input.Email,
+		Phone: input.Phone,
 		Password: string(hashPassword),
-		Role:	"user",
+		Role: "user",
 	}
 
 	database.DB.Create(&user)
@@ -51,24 +51,25 @@ func Login(c *gin.Context)  {
 	var user models.User
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error" : err.Error()})
 		return
 	}
 
 	database.DB.Where("email = ?", input.Email).First(&user)
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message" : "Password salah",
-		})		
+			"message" : "Password Salah",
+		})
 	}
 
 	token, err := utils.GenerateToken(user.ID.String(), user.Role)
 
 	if err != nil {
 		c.JSON(500, gin.H{
-			"error" : "failed generate token",
+			"error" : "Failed generate token",
 		})
 		return
 	}
