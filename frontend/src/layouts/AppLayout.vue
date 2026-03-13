@@ -68,8 +68,8 @@ onMounted(() => {
         </div>
 
         <div v-show="mobileMenu" class="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2">
-            <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Beranda</a>
-            <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Bus</a>
+            <RouterLink to="/" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Beranda</RouterLink>
+            <RouterLink to="/bus" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Bus</RouterLink>
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Tiket</a>
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Rute</a>
             <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Kontak</a>
