@@ -3,60 +3,10 @@ import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { nextTick, onMounted, ref } from 'vue';
 import { getDataBus, addBus, editBus, deleteBus } from '@/services/auth';
-import Modal from '@/components/ui/Modal.vue';
 import Swal from 'sweetalert2';
-
-const showModal = ref(false)
-const modalEdit = ref(false)
 const bus = ref([])
 const search = ref('')
 const status = ref('')
-
-const form = ref({
-    id: null,
-    bus_name: '',
-    bus_number: '',
-    total_seats: '',
-    status: '',
-})
-
-const editDataBus = (bus) => {
-    form.value.id = bus.id
-    form.value.bus_name = bus.bus_name
-    form.value.bus_number = bus.bus_number
-    form.value.total_seats = bus.total_seats
-    form.value.status = bus.status
-
-    modalEdit.value = true
-}
-
-const submitBus = async () => {
-    try {
-        if (form.value.id) {
-            await editBus(form.value.id, form.value)
-            resetForm()
-            closemodalEdit()
-        } else {
-            await addBus(form.value)
-            resetForm()
-            closeModal()
-        }
-        getAllDataBus()
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil',
-            text: 'Data telah berhasil ditambahkan',
-            showCloseButton: false
-        })
-    } catch (error) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Gagal',
-            text: error.response?.data?.error || 'Terjadi Kesalahan',
-            showCancelButton: false
-        })
-    }
-}
 
 const getAllDataBus = async () => {
     try {
@@ -72,22 +22,7 @@ const getAllDataBus = async () => {
     }
 }
 
-const openModal = () => {
-    showModal.value = true
-}
-
-const closeModal = () => {
-    showModal.value = false
-}
-
-const openmodalEdit = () => {
-    modalEdit.value = true
-}
-
-const closemodalEdit = () => {
-    modalEdit.value = false
-}
-
+// Hapus Data Bus
 const deleteDataBus = async (id) => {
     Swal.fire({
         title: 'Yaking ingin menghapus?',
@@ -118,13 +53,78 @@ const deleteDataBus = async (id) => {
     })
 }
 
-const resetForm = () => {
-    form.value = {
-        id: null,
-        bus_name: '',
-        bus_number: '',
-        total_seats: '',
-        status: '',
+// Tambah dan Edit Data Bus
+const openBusForm = async (data = null) => {
+    const { value } = await Swal.fire({
+        title: data ? 'Edit Bus' : 'Tambah Bus',
+        html: `
+            <input type="text" id="bus_name"
+                class="swal2-input"
+                placeholder="Nama Bus"
+                value="${data?.bus_name || ''}"
+            />
+
+            <input type="text" id="bus_number"
+                class="swal2-input"
+                placeholder="Plat No Bus"
+                value="${data?.bus_number || ''}"
+            />
+
+            <input id="total_seats"
+                type="number"
+                class="swal2-input"
+                placeholder="Jumlah Kursi"
+                value="${data?.total_seats || ''}"
+            />
+
+            <select id="status" class="swal2-input">
+                <option value="">Pilih Status</option>
+                <option value="active" ${data?.status === 'active' ? 'selected' : ''}>Active</option>
+                <option value="maintenance" ${data?.status === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+                <option value="inactive" ${data?.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+            </select>
+        `,
+        showCancelButton: true,
+        confirmButtonText: data ? "Update" : "Simpan",
+        focusConfirm: false,
+        preConfirm: () => {
+            const bus_name = document.getElementById("bus_name").value
+            const bus_number = document.getElementById("bus_number").value
+            const total_seats = Number(document.getElementById("total_seats").value)
+            const status = document.getElementById("status").value
+
+            if (!bus_name || !bus_number) {
+                Swal.showValidationMessage("Nama bus dan plat wajib diisi")
+                return false
+            }
+
+            return { bus_name, bus_number, total_seats, status }
+        }
+    })
+
+    if (!value) return
+
+    try {
+        if (data) {
+            await editBus(data.id, value)
+        } else {
+            await addBus(value)
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: 'Data berhasil disimpan!'
+        })
+
+        getAllDataBus()
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: error.response?.data?.error || "Terjadi kesalahan!"
+        })
     }
 }
 
@@ -142,7 +142,7 @@ onMounted(() => {
                 <p class="text-gray-600">Daftar semua armada bus yang terdaftar.</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <button @click="openModal" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
+                <button @click="openBusForm()" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
                     <PlusCircle class="mr-2" /> Tambah Bus
                 </button>
             </div>
@@ -204,7 +204,7 @@ onMounted(() => {
                                     <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Eye class="w-5 h-5" />
                                     </button>
-                                    <button @click="editDataBus(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
+                                    <button @click="openBusForm(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
                                         <Edit2Icon class="w-5 h-5" />
                                     </button>
                                     <button @click="deleteDataBus(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
@@ -230,76 +230,5 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-
-        <!-- Modal Edit Data -->
-        <Modal :show="modalEdit" @close="closemodalEdit">
-            <form @submit.prevent="submitBus">
-                <input v-model="form.id" type="hidden" >
-                <div class="space-y-4">
-                    <div>
-                        <label for="nama_bus" class="block text-sm font-medium">Nama Bus</label>
-                        <input v-model="form.bus_name" type="text" name="nama_bus" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Masukkan Nama Bus" value="">
-                    </div>
-
-                    <div>
-                        <label for="no_plat" class="block text-sm font-medium">Nomor Plat Bus</label>
-                        <input v-model="form.bus_number" type="text" name="no_plat" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Ex: B 1234 AV">
-                    </div>
-
-                    <div>
-                        <label for="total_kursi" class="block text-sm font-medium">Kapasitas Kursi</label>
-                        <input v-model="form.total_seats" type="number" name="total_kursi" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Jumlah Kursi">
-                    </div>
-
-                    <div>
-                        <label for="status" class="block text-sm font-medium">Status</label>
-                        <select v-model="form.status" name="status" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition">
-                            <option value="active">Aktif</option>
-                            <option value="maintenance">Maintenance</option>
-                            <option value="inactive">Tidak Aktif</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="submit" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">Simpan</button>
-                </div>
-            </form>
-        </Modal>
-
-        <!-- Modal Tambah Data -->
-        <Modal :show="showModal" @close="closeModal">
-            <form @submit.prevent="submitBus">
-                <div class="space-y-4">
-                    <div>
-                        <label for="nama_bus" class="block text-sm font-medium">Nama Bus</label>
-                        <input v-model="form.bus_name" type="text" name="nama_bus" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Masukkan Nama Bus">
-                    </div>
-
-                    <div>
-                        <label for="no_plat" class="block text-sm font-medium">Nomor Plat Bus</label>
-                        <input v-model="form.bus_number" type="text" name="no_plat" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Ex: B 1234 AV">
-                    </div>
-
-                    <div>
-                        <label for="total_kursi" class="block text-sm font-medium">Kapasitas Kursi</label>
-                        <input v-model="form.total_seats" type="number" name="total_kursi" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" placeholder="Jumlah Kursi">
-                    </div>
-
-                    <div>
-                        <label for="status" class="block text-sm font-medium">Status</label>
-                        <select v-model="form.status" name="status" id="" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition">
-                            <option value="active">Aktif</option>
-                            <option value="maintenance">Maintenance</option>
-                            <option value="inactive">Tidak Aktif</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="submit" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">Simpan</button>
-                </div>
-            </form>
-        </Modal>
     </AdminLayout>
 </template>
