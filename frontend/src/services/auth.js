@@ -31,3 +31,19 @@ export const editBus = (id, data) => {
 export const deleteBus = (id) => {
     return api.delete(`/bus/${id}`)
 }
+
+export const getDataRoute = (data) => {
+    return api.get("/route", data)
+}
+
+export const postDataRoute = (data) => {
+    return api.post("/route", data)
+}
+
+export const deleteDataRoute = (id) => {
+    return api.delete(`/route/${id}`)
+} 
+
+export const editDataRoute = (id, data) => {
+    return api.put(`/route/${id}`, data)
+}
