@@ -9,6 +9,7 @@ import DaftarBus from '@/views/admin/DaftarBus.vue'
 import DaftarRoute from '@/views/admin/DaftarRoute.vue'
 import DaftarUser from '@/views/admin/DaftarUser.vue'
 import BusView from '@/views/BusView.vue'
+import RuteView from '@/views/RuteView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/bus',
       name: 'Bus',
       component: BusView
+    },
+    {
+      path: "/rute",
+      name: 'Rute',
+      component: RuteView
     },
     {
       path: "/admin/dashboard",
@@ -80,7 +86,7 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
 
-  const publicPages = ["/login", "/register", "/", "/bus"]
+  const publicPages = ["/login", "/register", "/", "/bus", "/rute"]
   const authRequired = !publicPages.includes(to.path)
 
   if (authRequired && !token) {
