@@ -41,9 +41,8 @@ onMounted(() => {
                 <div class="hidden md:flex space-x-8 text-gray-700 font-medium">
                     <RouterLink to="/" class="hover:text-orange-500 transition">Beranda</RouterLink>
                     <RouterLink to="/bus" class="hover:text-orange-500 transition">Bus</RouterLink>
-                    <a href="" class="hover:text-orange-500 transition">Tiket</a>
                     <RouterLink to="/rute" class="hover:text-orange-500 transition">Rute</RouterLink>
-                    <a href="" class="hover:text-orange-500 transition">Kontak</a>
+                    <RouterLink to="/contact" class="hover:text-orange-500 transition">Kontak</RouterLink>
                 </div>
 
                 <div class="hidden md:flex items-center space-x-3">
@@ -70,9 +69,8 @@ onMounted(() => {
         <div v-show="mobileMenu" class="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2">
             <RouterLink to="/" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Beranda</RouterLink>
             <RouterLink to="/bus" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Bus</RouterLink>
-            <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Tiket</a>
-            <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Rute</a>
-            <a href="#" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Kontak</a>
+            <RouterLink to="/rute" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Rute</RouterLink>
+            <RouterLink to="/contact" class="block py-2 text-gray-700 hover:text-orange-500 font-medium">Contact</RouterLink>
             <div class="flex flex-col space-y-2 pt-3 border-t border-gray-200 mt-2">
                 <template v-if="!isLogin">
                     <RouterLink to="/login"></RouterLink>
