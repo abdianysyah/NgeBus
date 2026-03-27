@@ -3,10 +3,16 @@ import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { nextTick, onMounted, ref } from 'vue';
 import { getDataBus, addBus, editBus, deleteBus } from '@/services/auth';
+import Modal from '@/components/ui/Modal.vue';
 import Swal from 'sweetalert2';
 const bus = ref([])
 const search = ref('')
 const status = ref('')
+
+const open = ref(false)
+const isEdit = ref(false)
+
+
 
 const getAllDataBus = async () => {
     try {

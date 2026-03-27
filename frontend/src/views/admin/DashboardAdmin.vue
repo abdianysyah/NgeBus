@@ -1,16 +1,25 @@
 <script setup>
 import { onMounted, ref, nextTick } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Bus, Ticket, Users } from 'lucide-vue-next';
+import { Bus, Ticket, Users, Building, TriangleAlert, TriangleAlertIcon } from 'lucide-vue-next';
 import Modal from '@/components/ui/Modal.vue';
 import { Chart } from 'chart.js/auto';
 import { countData } from '@/services/auth';
+import { toast } from 'vue3-toastify';
 
 const showModal = ref(false)
 const monthlyChart = ref(null)
 const statusChart = ref(null)
 const dashboardData = ref({})
 const ChartData = ref([])
+
+const open = ref(false)
+
+const handleConfirm = () => {
+    toast("Confirmed!", {
+        autoClose: 1000,
+    });
+}
 
 const getDashboardData = async () => {
     try {
@@ -99,7 +108,7 @@ const closeModal = () => {
             <p class="text-gray-600">Ringkasan data dan aktivitas sistem NgeBus.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
                 <div>
                     <p class="text-sm text-gray-500">Total Bus</p>
@@ -127,6 +136,15 @@ const closeModal = () => {
                     <Users class="w-7 h-7" />
                 </div>
             </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
+                <div>
+                    <p class="text-sm text-gray-500">Total PO Bus</p>
+                    <p class="text-2xl font-bold text-gray-800">Maintenance Mode</p>
+                </div>
+                <div class="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center text-indigo-600">
+                    <Building class="w-7 h-7" />
+                </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -140,17 +158,16 @@ const closeModal = () => {
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Status Pemesanan</h3>
+                <p class="text-sm text-gray-500">Maintenance Mode</p>
                 <div class="relative flex items-center justify-center">
                     <canvas ref="statusChart" class="max-h-full max-w-full"></canvas>
                 </div>
             </div>
         </div>
-        <!-- <button @click="openModal" class="px-2 py-3 bg-amber-600 rounded-xl">
-            Testing Modal
-        </button>
+        <button @click="open = true" class="py-3 px-4 bg-amber-500 rounded-xl shadow">Buka Modal</button>
 
-        <Modal :show="showModal" @close="closeModal">
-            <p>Test Modal cuy</p>
-        </Modal> -->
+        <Modal v-model="open" title="Testing Modal" @confirm="handleConfirm">
+            <p>Cuman Test doang</p>
+        </Modal>
     </AdminLayout>
 </template>

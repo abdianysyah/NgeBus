@@ -4,7 +4,7 @@ import { login } from "@/services/auth"
 import AuthLayout from "@/layouts/AuthLayout.vue"
 import { RouterLink, useRouter } from "vue-router"
 import { Eye } from "lucide-vue-next"
-import Swal from "sweetalert2"
+import { toast } from "vue3-toastify"
 
 const router = useRouter()
 
@@ -30,12 +30,9 @@ const handleLogin = async () => {
     localStorage.setItem("token", res.data.token)
     localStorage.setItem("role", res.data.role)
 
-    await Swal.fire({
-      icon: "success",
-      title: "Login Berhasil",
-      text: "Selamat datang kembali",
-      timer: 1500,
-      showConfirmButton: false
+    await toast("Berhasil Login!",{
+      "type":"success",
+      "autoClose": 1000,
     })
 
     if (res.data.role === "admin") {
@@ -45,10 +42,9 @@ const handleLogin = async () => {
     }
 
   } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Login gagal",
-      text: "Email atau password salah"
+    toast("Gagal Login", {
+      "type" : "error",
+      "autoClose" : 1000
     })
   } finally {
     loading.value = false

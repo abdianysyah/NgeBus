@@ -11,6 +11,7 @@ import DaftarUser from '@/views/admin/DaftarUser.vue'
 import BusView from '@/views/BusView.vue'
 import RuteView from '@/views/RuteView.vue'
 import ContactView from '@/views/ContactView.vue'
+import DaftarCompany from '@/views/admin/DaftarCompany.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,6 +65,11 @@ const router = createRouter({
       path: "/admin/data-users",
       name: 'Daftar Pengguna',
       component: DaftarUser 
+    },
+    {
+      path: "/admin/data-company",
+      name: 'Daftar PO Bus',
+      component: DaftarCompany
     },
     {
       path: "/dashboard",
