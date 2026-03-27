@@ -106,6 +106,6 @@ func DeleteRoute(c *gin.Context)  {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message" : "Rute berhasil di hapus!",
+		"message" : "Rute berhasil dihapus!",
 	})
 }

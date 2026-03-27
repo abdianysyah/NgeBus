@@ -21,6 +21,8 @@ func UserRoutes(router *gin.Engine)  {
 		user.GET("/bus/:id", controllers.GetBusByID)
 		user.GET("/route", controllers.GetAllRoute)
 		user.GET("/route/:id", controllers.GetRouteByID)
+		user.GET("/company", controllers.GetAllCompany)
+		user.GET("/company/:id", controllers.GetCompanyByID)
 	}
 
 	admin := router.Group("/api/")
@@ -33,5 +35,8 @@ func UserRoutes(router *gin.Engine)  {
 		admin.POST("/route", controllers.CreateRoute)
 		admin.PUT("/route/:id", controllers.UpdateRoute)
 		admin.DELETE("/route/:id", controllers.DeleteRoute)
+		admin.POST("/company", controllers.CreateCompany)
+		admin.PUT("/company/:id", controllers.UpdateCompany)
+		admin.DELETE("/company/:id", controllers.DeleteCompany)
 	}
 }
