@@ -47,3 +47,19 @@ export const deleteDataRoute = (id) => {
 export const editDataRoute = (id, data) => {
     return api.put(`/route/${id}`, data)
 }
+
+export const getDataCompany = (params) => {
+    return api.get("/company", params)
+}
+
+export const postDataCompany = (data) => {
+    return api.post("/company", data)
+}
+
+export const editDataCompany = (id, data) => {
+    return api.put(`/company/${id}`, data)
+}
+
+export const deleteDataCompany = (id) => {
+    return api.delete(`/company/${id}`)
+}

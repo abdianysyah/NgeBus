@@ -31,11 +31,13 @@ func AdminDashboard(c *gin.Context)  {
 	var totalOrders int64
 	var totalBus int64
 	var totalSchedules int64
+	var totalCompany int64
 
 	database.DB.Model(&models.User{}).Count(&totalUsers)
 	database.DB.Model(&models.Order{}).Count(&totalOrders)
 	database.DB.Model(&models.Bus{}).Count(&totalBus)
 	database.DB.Model(&models.Schedule{}).Count(&totalSchedules)
+	database.DB.Model(&models.Company{}).Count(&totalCompany)
 
 	currentYear := time.Now().Year()
 
@@ -65,6 +67,7 @@ func AdminDashboard(c *gin.Context)  {
 			"total_orders": totalOrders,
 			"total_bus": totalBus,
 			"total_schedules": totalSchedules,
+			"total_company": totalCompany,
 			"monthly_orders": monthlyOrders,
 		},
 	})

@@ -2,24 +2,13 @@
 import { onMounted, ref, nextTick } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Bus, Ticket, Users, Building, TriangleAlert, TriangleAlertIcon } from 'lucide-vue-next';
-import Modal from '@/components/ui/Modal.vue';
 import { Chart } from 'chart.js/auto';
 import { countData } from '@/services/auth';
-import { toast } from 'vue3-toastify';
 
-const showModal = ref(false)
 const monthlyChart = ref(null)
 const statusChart = ref(null)
 const dashboardData = ref({})
 const ChartData = ref([])
-
-const open = ref(false)
-
-const handleConfirm = () => {
-    toast("Confirmed!", {
-        autoClose: 1000,
-    });
-}
 
 const getDashboardData = async () => {
     try {
@@ -90,15 +79,6 @@ onMounted(() => {
 
     getDashboardData()
 })
-
-const openModal = () => {
-  showModal.value = true
-}
-
-const closeModal = () => {
-  showModal.value = false
-}
-
 </script>
 
 <template>
@@ -139,7 +119,7 @@ const closeModal = () => {
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
                 <div>
                     <p class="text-sm text-gray-500">Total PO Bus</p>
-                    <p class="text-2xl font-bold text-gray-800">Maintenance Mode</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ dashboardData.total_company }}</p>
                 </div>
                 <div class="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center text-indigo-600">
                     <Building class="w-7 h-7" />
@@ -164,10 +144,5 @@ const closeModal = () => {
                 </div>
             </div>
         </div>
-        <button @click="open = true" class="py-3 px-4 bg-amber-500 rounded-xl shadow">Buka Modal</button>
-
-        <Modal v-model="open" title="Testing Modal" @confirm="handleConfirm">
-            <p>Cuman Test doang</p>
-        </Modal>
     </AdminLayout>
 </template>

@@ -3,19 +3,33 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
 import Modal from '@/components/ui/Modal.vue';
 import { toast } from 'vue3-toastify';
-import { ref } from 'vue';
-
-const createCompany = async (data) => data
-const updateCompany = async (id, data) => data
-
+import { nextTick, onMounted, ref } from 'vue';
+import { getDataCompany, editDataCompany, postDataCompany, deleteDataCompany } from '@/services/auth';
+const company = ref([])
+const search = ref('')
 const openModal = ref(false)
 const isEdit = ref(false)
+const selectedId = ref(null)
+const openDeleteModal = ref(false)
 
 const form = ref({
     id: null,
     name_company: '',
     total_bus: 0,
 })
+
+const showData = async () => {
+    try {
+        const res = await getDataCompany({
+            search: search.value,
+        })
+        company.value = res.data.data
+
+        await nextTick()
+    } catch {
+        console.error(error);
+    }
+}
 
 const openCreate = () => {
     isEdit.value = false
@@ -33,6 +47,11 @@ const openEdit = (data) => {
     openModal.value = true
 }
 
+const openDelete = (id) => {
+    selectedId.value = id
+    openDeleteModal.value = true
+}
+
 const handleSubmit = async () => {
     try {
         if (!form.value.name_company) {
@@ -41,14 +60,14 @@ const handleSubmit = async () => {
             })
         } else {
             if (isEdit.value) {
-                await updateCompany(form.value.id, form.value)
-    
+                await editDataCompany(form.value.id, form.value)
+                showData()
                 toast.success("Data Berhasil diupdate!", {
                     autoClose: 1000
                 })
             } else {
-                await createCompany(form.value)
-    
+                await postDataCompany(form.value)
+                showData()
                 toast.success("Data Berhasil ditambahkan!", {
                     autoClose: 1000
                 })
@@ -61,6 +80,26 @@ const handleSubmit = async () => {
         })
     }
 }
+
+const handleDelete = async () => {
+    try {
+        await deleteDataCompany(selectedId.value)
+        showData()
+        toast.success("Berhasil dihapus!", {
+            autoClose: 1000,
+        })
+
+        openDeleteModal.value = false
+    } catch (err) {
+        toast.error("Gagal hapus data!", {
+            autoClose: 1000,
+        })        
+    }
+}
+
+onMounted(() => {
+    showData()
+})
 </script>
 
 <template>
@@ -95,30 +134,20 @@ const handleSubmit = async () => {
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
-                    <!-- <tbody class="bg-white divide-y divide-gray-200">
-                        <template v-if="bus.length > 0">
-                            <tr v-for="(item, index) in bus" :key="item.id" class="hover:bg-gray-50">
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template v-if="company.length > 0">
+                            <tr v-for="(item, index) in company" :key="item.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_number }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.total_seats }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <span class="px-2 py-1 text-xs rounded-full" 
-                                        :class="{
-                                            'bg-green-100 text-green-800' : item.status === 'active',
-                                            'bg-red-100 text-red-800' : item.status === 'nonactive',
-                                            'bg-yellow-100 text-yellow-800' : item.status === 'maintenance'
-
-                                        }">{{ item.status }}</span>
-                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.name_company }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.total_bus }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-700 flex justify-center gap-2">
                                     <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Eye class="w-5 h-5" />
                                     </button>
-                                    <button @click="openBusForm(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
+                                    <button @click="openEdit(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
                                         <Edit2Icon class="w-5 h-5" />
                                     </button>
-                                    <button @click="deleteDataBus(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <button @click="openDelete(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Trash class="w-5 h-5" />
                                     </button>
                                 </td>
@@ -128,7 +157,7 @@ const handleSubmit = async () => {
                         <tr v-else >
                             <td colspan="6" class="text-center py-4 text-gray-500">Tidak ada data</td>
                         </tr>
-                    </tbody> -->
+                    </tbody>
                 </table>
             </div>
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
@@ -142,7 +171,7 @@ const handleSubmit = async () => {
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Modal Tambah & Edit -->
         <Modal v-model="openModal" :title="isEdit ? 'Edit Data' : 'Tambah Data'" @confirm="handleSubmit">
             <div class="space-y-3 text-black">
                 <form @submit.prevent="handleSubmit">
@@ -152,6 +181,11 @@ const handleSubmit = async () => {
                     </div>
                 </form>
             </div>
+        </Modal>
+
+        <!-- Modal Hapus -->
+        <Modal v-model="openDeleteModal" title="Hapus Data" @confirm="handleDelete">
+            <p class="text-black">Yakin ingin menghapus data ini?</p>
         </Modal>
     </AdminLayout>
 </template>
