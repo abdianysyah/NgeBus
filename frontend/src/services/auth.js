@@ -63,3 +63,7 @@ export const editDataCompany = (id, data) => {
 export const deleteDataCompany = (id) => {
     return api.delete(`/company/${id}`)
 }
+
+export const detailDataCompany = (id) => {
+    return api.get(`/company/${id}`)
+}

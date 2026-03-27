@@ -1,104 +1,75 @@
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
-import Modal from '@/components/ui/Modal.vue';
 import { toast } from 'vue3-toastify';
-import { nextTick, onMounted, ref } from 'vue';
-import { getDataCompany, editDataCompany, postDataCompany, deleteDataCompany } from '@/services/auth';
-const company = ref([])
-const search = ref('')
-const openModal = ref(false)
-const isEdit = ref(false)
-const selectedId = ref(null)
-const openDeleteModal = ref(false)
+import { onMounted, ref } from 'vue';
+import ModalForm from '@/components/company/ModalForm.vue';
+import { useCompany } from '@/composables/useCompany';
 
-const form = ref({
-    id: null,
-    name_company: '',
-    total_bus: 0,
-})
+// Composable
+const { company, search, fetchCompany, createCompany, updateCompany, removeCompany, detailCompany } = useCompany();
 
-const showData = async () => {
+// State modal
+const openFormModal = ref(false);
+const openDeleteModal = ref(false);
+const openDetailModal = ref(false);
+
+// State form
+const form = ref({ id: null, name_company: '', total_bus: 0 });
+const modalMode = ref('create');
+const selectedId = ref(null);
+
+// Event handler modal
+const handleOpenCreate = () => {
+    modalMode.value = 'create';
+    form.value = { id: null, name_company: '', total_bus: 0 };
+    openFormModal.value = true;
+}
+
+const handleOpenEdit = (data) => {
+    modalMode.value = 'edit';
+    form.value = { ...data };
+    openFormModal.value = true;
+}
+
+const handleOpenDetail = (data) => {
+    
+}
+
+const handleSubmitForm = async (data) => {
     try {
-        const res = await getDataCompany({
-            search: search.value,
-        })
-        company.value = res.data.data
-
-        await nextTick()
-    } catch {
-        console.error(error);
-    }
-}
-
-const openCreate = () => {
-    isEdit.value = false
-    form.value = {
-        id: null,
-        name_company: '',
-        total_bus: 0
-    }
-    openModal.value = true
-}
-
-const openEdit = (data) => {
-    isEdit.value = true
-    form.value = { ...data }
-    openModal.value = true
-}
-
-const openDelete = (id) => {
-    selectedId.value = id
-    openDeleteModal.value = true
-}
-
-const handleSubmit = async () => {
-    try {
-        if (!form.value.name_company) {
-            toast.error("Nama PO Wajib diisi!", {
-                autoClose: 1000,
-            })
-        } else {
-            if (isEdit.value) {
-                await editDataCompany(form.value.id, form.value)
-                showData()
-                toast.success("Data Berhasil diupdate!", {
-                    autoClose: 1000
-                })
-            } else {
-                await postDataCompany(form.value)
-                showData()
-                toast.success("Data Berhasil ditambahkan!", {
-                    autoClose: 1000
-                })
-            }
+        if (!data.name_company) {
+            toast.error("Error: Nama PO Wajib diisi!", { autoClose: 1000 });
+            return;
         }
-        openModal.value = false
+
+        if (modalMode.value === 'edit') {
+            await updateCompany(data.id, data);
+            toast.success("Data berhasil diupdate!", { autoClose: 1000 });
+        } else {
+            await createCompany(data);
+            toast.success("Data berhasil ditambahkan!", { autoClose: 1000 });
+        }
+
+        await fetchCompany();
     } catch (error) {
-        toast.error("Gagal menyimpan data!", {
-            autoClose: 1000
-        })
+        toast.error("Gagal menyimpan data!", { autoClose: 1000 });
     }
 }
 
 const handleDelete = async () => {
     try {
-        await deleteDataCompany(selectedId.value)
-        showData()
-        toast.success("Berhasil dihapus!", {
-            autoClose: 1000,
-        })
-
+        await removeCompany(selectedId.value);
+        toast.success("Data berhasil dihapus!", { autoClose: 1000 });
+        await fetchCompany();
         openDeleteModal.value = false
     } catch (err) {
-        toast.error("Gagal hapus data!", {
-            autoClose: 1000,
-        })        
+        
     }
 }
 
 onMounted(() => {
-    showData()
+    fetchCompany();
 })
 </script>
 
@@ -110,7 +81,7 @@ onMounted(() => {
                 <p class="text-gray-600">Daftar semua armada bus yang terdaftar.</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <button @click="openCreate" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
+                <button @click="handleOpenCreate" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
                     <PlusCircle class="mr-2" /> Tambah PO Bus
                 </button>
             </div>
@@ -119,7 +90,7 @@ onMounted(() => {
         <div class="bg-white p-4 rounded-xl shadow-sm border-gray-100 mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-64">
                 <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input v-model="search" type="text" name="" id="" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" @input="getAllDataBus" placeholder="PO Bus">
+                <input v-model="search" type="text" name="" id="" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" @input="fetchCompany" placeholder="PO Bus">
             </div>
         </div>
 
@@ -144,10 +115,10 @@ onMounted(() => {
                                     <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Eye class="w-5 h-5" />
                                     </button>
-                                    <button @click="openEdit(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
+                                    <button class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
                                         <Edit2Icon class="w-5 h-5" />
                                     </button>
-                                    <button @click="openDelete(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <button class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Trash class="w-5 h-5" />
                                     </button>
                                 </td>
@@ -171,21 +142,12 @@ onMounted(() => {
             </div>
         </div>
 
-        <!-- Modal Tambah & Edit -->
-        <Modal v-model="openModal" :title="isEdit ? 'Edit Data' : 'Tambah Data'" @confirm="handleSubmit">
-            <div class="space-y-3 text-black">
-                <form @submit.prevent="handleSubmit">
-                    <div class="mb-4">
-                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama PO Bus</label>
-                        <input id="name" type="text" v-model="form.name_company" placeholder="Masukkan Nama PO Bus" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" required>
-                    </div>
-                </form>
-            </div>
-        </Modal>
-
-        <!-- Modal Hapus -->
-        <Modal v-model="openDeleteModal" title="Hapus Data" @confirm="handleDelete">
-            <p class="text-black">Yakin ingin menghapus data ini?</p>
-        </Modal>
+        <!-- Modal Form -->        
+        <ModalForm
+            v-model="openFormModal"
+            :data="form"
+            :mode="modalMode"
+            @submit="handleSubmitForm"
+        />
     </AdminLayout>
 </template>
