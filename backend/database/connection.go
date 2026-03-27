@@ -36,10 +36,12 @@ func Connect() {
 
 	err = DB.AutoMigrate(
 		&models.User{},
+		&models.Company{},
 		&models.Bus{},
 		&models.Route{},
 		&models.Schedule{},
 		&models.Order{},
+		&models.Ticket{},
 	)
 
 	if err != nil {

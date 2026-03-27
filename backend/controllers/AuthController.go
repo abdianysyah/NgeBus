@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/abdianysyah/backend/database"
 	"github.com/abdianysyah/backend/models"
@@ -65,7 +66,8 @@ func Login(c *gin.Context)  {
 		})
 	}
 
-	token, err := utils.GenerateToken(user.ID.String(), user.Role)
+	// token, err := utils.GenerateToken(user.ID.String(), user.Role)
+	token, err := utils.GenerateToken(strconv.FormatUint(uint64(user.ID), 10), user.Role)
 
 	if err != nil {
 		c.JSON(500, gin.H{

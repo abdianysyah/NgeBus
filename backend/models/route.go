@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Route struct {
 	ID 				uint			`gorm:"primaryKey" json:"id"`
@@ -8,8 +12,8 @@ type Route struct {
 	Destination		string			`gorm:"type:varchar(100);not null" json:"destination"`
 	Distance		int				`gorm:"not null" json:"distance"`
 
-	CreatedAt		int64
-	UpdatedAt		int64
+	CreatedAt		time.Time
+	UpdatedAt		time.Time
 	DeletedAt 		gorm.DeletedAt	`gorm:"index"`
 
 	Schedule		[]Schedule		`gorm:"foreignKey:RouteID"`
