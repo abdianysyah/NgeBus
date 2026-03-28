@@ -72,7 +72,19 @@ func UpdateCompany(c *gin.Context)  {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error" : "PO Bus tidak ditemukan!",
 		})
+		return
 	}
+
+	var input models.Company
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error" : err.Error(),
+		})
+		return
+	}
+
+	company.NameCompany = input.NameCompany
+	company.TotalBus = input.TotalBus
 
 	database.DB.Save(&company)
 

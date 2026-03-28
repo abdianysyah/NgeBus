@@ -49,7 +49,7 @@ export const editDataRoute = (id, data) => {
 }
 
 export const getDataCompany = (params) => {
-    return api.get("/company", params)
+    return api.get("/company", { params })
 }
 
 export const postDataCompany = (data) => {

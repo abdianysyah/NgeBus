@@ -15,7 +15,7 @@ const form = ref({ ...props.data })
 // Sync form jika props.data berubah
 watch(() => props.data, (newVal) => {
   form.value = { ...newVal }
-})
+}, { immediate: true })
 
 // computed untuk v-model
 const showModal = computed({

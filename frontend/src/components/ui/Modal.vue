@@ -46,13 +46,15 @@ defineEmits(['update:modelValue', 'confirm'])
               </div>
 
               <div class="mt-6 flex justify-end gap-2">
-                <button class="px-3 py-2 bg-gray-500 text-white rounded" @click="$emit('update:modelValue', false)">
-                  Batal
-                </button>
-
-                <button type="submit" class="px-3 py-2 bg-blue-500 text-white rounded" @click="$emit('confirm')">
-                  Lakukan
-                </button>
+                <slot name="footer">
+                  <button class="px-3 py-2 bg-gray-500 text-white rounded" @click="$emit('update:modelValue', false)">
+                    Batal
+                  </button>
+  
+                  <button type="submit" class="px-3 py-2 bg-blue-500 text-white rounded" @click="$emit('confirm')">
+                    Lakukan
+                  </button>
+                </slot>
               </div>
             </DialogPanel>
           </TransitionChild>

@@ -2,22 +2,34 @@
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
 import { toast } from 'vue3-toastify';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import ModalForm from '@/components/company/ModalForm.vue';
+import ModalDelete from '@/components/company/ModalDelete.vue';
 import { useCompany } from '@/composables/useCompany';
 
-// Composable
 const { company, search, fetchCompany, createCompany, updateCompany, removeCompany, detailCompany } = useCompany();
+
+let timeout = null
+
+watch(search, (value) => {
+    clearTimeout(timeout)
+
+    timeout = setTimeout(() => {
+        fetchCompany()
+    }, 500)
+})
+
+// Composable
 
 // State modal
 const openFormModal = ref(false);
 const openDeleteModal = ref(false);
-const openDetailModal = ref(false);
 
 // State form
 const form = ref({ id: null, name_company: '', total_bus: 0 });
 const modalMode = ref('create');
 const selectedId = ref(null);
+const selectedName = ref('')
 
 // Event handler modal
 const handleOpenCreate = () => {
@@ -27,13 +39,16 @@ const handleOpenCreate = () => {
 }
 
 const handleOpenEdit = (data) => {
+    console.log('Data Edit', data);
     modalMode.value = 'edit';
     form.value = { ...data };
     openFormModal.value = true;
 }
 
-const handleOpenDetail = (data) => {
-    
+const handleOpenDelete = (item) => {
+    selectedId.value = item.id
+    selectedName.value = item.name_company
+    openDeleteModal.value = true
 }
 
 const handleSubmitForm = async (data) => {
@@ -64,7 +79,7 @@ const handleDelete = async () => {
         await fetchCompany();
         openDeleteModal.value = false
     } catch (err) {
-        
+        toast.error("Gagal hapus data!", { autoClose: 1000 })
     }
 }
 
@@ -90,7 +105,7 @@ onMounted(() => {
         <div class="bg-white p-4 rounded-xl shadow-sm border-gray-100 mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-64">
                 <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input v-model="search" type="text" name="" id="" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" @input="fetchCompany" placeholder="PO Bus">
+                <input v-model="search" type="text" name="search" id="" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="PO Bus">
             </div>
         </div>
 
@@ -112,13 +127,13 @@ onMounted(() => {
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.name_company }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.total_bus }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-700 flex justify-center gap-2">
-                                    <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <!-- <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Eye class="w-5 h-5" />
-                                    </button>
-                                    <button class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
+                                    </button> -->
+                                    <button @click="handleOpenEdit(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
                                         <Edit2Icon class="w-5 h-5" />
                                     </button>
-                                    <button class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <button @click="handleOpenDelete(item)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Trash class="w-5 h-5" />
                                     </button>
                                 </td>
@@ -148,6 +163,13 @@ onMounted(() => {
             :data="form"
             :mode="modalMode"
             @submit="handleSubmitForm"
+        />
+
+        <!-- Modal Delete -->
+        <ModalDelete
+            v-model="openDeleteModal"
+            :name="selectedName"
+            @confirm="handleDelete"
         />
     </AdminLayout>
 </template>
