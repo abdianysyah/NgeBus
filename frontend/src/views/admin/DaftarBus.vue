@@ -1,18 +1,32 @@
 <script setup>
 import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import ModalForm from '@/components/bus/ModalForm.vue';
+import ModalDelete from '@/components/bus/ModalDelete.vue';
 import { useBus } from '@/composables/useBus';
 import { useCompany } from '@/composables/useCompany';
 import { toast } from 'vue3-toastify';
 
-const { bus, search, fetchDataBus, createBus, updateBus, removeBus } = useBus()
+const { bus, search, statusBus, classBus, fetchDataBus, createBus, updateBus, removeBus } = useBus()
 const { company, fetchCompany } = useCompany()
 
+let timeout = null
+
+watch([search, statusBus, classBus], (value) => {
+    clearTimeout(timeout)
+
+    timeout = setTimeout(() => {
+        fetchDataBus()
+    }, 500)
+})
+
 const openBusModal = ref(false)
+const openDeleteModal = ref(false)
 const busForm = ref({})
 const modalMode = ref('create')
+const selectedId = ref(null);
+const selectedName= ref('')
 
 const handleOpenCreate = () => {
     modalMode.value = 'create'
@@ -30,7 +44,13 @@ const handleOpenCreate = () => {
 const handleOpenEdit = (data) => {
     modalMode.value = 'edit'
     busForm.value = { ...data }
-    openBusModal.value = true
+    openBusModal.value = true;
+}
+
+const handleOpenDelete = (item) => {
+    selectedId.value = item.id
+    selectedName.value = item.bus_name
+    openDeleteModal.value = true;
 }
 
 const handleSubmitForm = async (data) => {
@@ -54,6 +74,18 @@ const handleSubmitForm = async (data) => {
         await fetchDataBus()
     } catch (error) {
         toast.error("Gagal simpan data!", { autoClose: 1000 })
+    }
+}
+
+const handleDelete = async () => {
+    try {
+        await removeBus(selectedId.value);
+        toast.success("Data berhasil dihapus!", {autoClose:1000})
+        await fetchDataBus();
+        openDeleteModal.value = false
+    } catch (err) {
+        console.log(err);
+        toast.error("Gagal hapus data!", {autoClose:1000})
     }
 }
 
@@ -81,16 +113,16 @@ onMounted(() => {
         <div class="bg-white p-4 rounded-xl shadow-sm border-gray-100 mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-64">
                 <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input v-model="search" type="text" name="" id="" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" @input="getAllDataBus" placeholder="Nama Bus / Plat No Bus">
+                <input v-model="search" type="text" name="" id="" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Nama Bus / Plat No Bus">
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-                <select name="" id="" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <select v-model="classBus" name="" id="" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
                     <option value="">Semua Kelas</option>
-                    <option value="">Eksekutif</option>
-                    <option value="">Patas</option>
-                    <option value="">Ekonomi</option>
+                    <option value="Ekonomi">Ekonomi</option>
+                    <option value="Bisnis">Bisnis</option>
+                    <option value="Executive">Executive</option>
                 </select>
-                <select v-model="status" @change="getAllDataBus" name="" id="" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <select v-model="statusBus" @change="getAllDataBus" name="" id="" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
                     <option value="">Semua Status</option>
                     <option value="active">Aktif</option>
                     <option value="nonaktif">Nonaktif</option>
@@ -108,7 +140,7 @@ onMounted(() => {
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PO Bus</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Plat Nomor</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Bus</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kapasitas</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -118,10 +150,10 @@ onMounted(() => {
                         <template v-if="bus.length > 0">
                             <tr v-for="(item, index) in bus" :key="item.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.company_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.company?.name_company || '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_number }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.bus_class }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_class }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.total_seats }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="px-2 py-1 text-xs rounded-full" 
@@ -136,10 +168,10 @@ onMounted(() => {
                                     <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Eye class="w-5 h-5" />
                                     </button>
-                                    <button @click="openBusForm(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
+                                    <button @click="handleOpenEdit(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
                                         <Edit2Icon class="w-5 h-5" />
                                     </button>
-                                    <button @click="deleteDataBus(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <button @click="handleOpenDelete(item)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Trash class="w-5 h-5" />
                                     </button>
                                 </td>
@@ -170,6 +202,13 @@ onMounted(() => {
             :mode="modalMode"
             :companies="company"
             @submit="handleSubmitForm"
+        />
+
+        <!-- Modal Delete -->
+        <ModalDelete
+            v-model="openDeleteModal"
+            :name="selectedName"
+            @confirm="handleDelete"
         />
     </AdminLayout>
 </template>

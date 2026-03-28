@@ -6,12 +6,14 @@ import (
 	"github.com/abdianysyah/backend/database"
 	"github.com/abdianysyah/backend/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // get All Bus
 func GetAllBus(c *gin.Context)  {
 	search := c.Query("search")
 	status := c.Query("status")
+	classes := c.Query("bus_class")
 
 	var buses []models.Bus
 
@@ -29,7 +31,11 @@ func GetAllBus(c *gin.Context)  {
 		query = query.Where("status = ?", status)
 	}
 
-	query.Find(&buses)
+	if classes != "" {
+		query = query.Where("bus_class = ?", classes)
+	}
+
+	query.Preload("Company").Find(&buses)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data" : buses,
@@ -47,7 +53,22 @@ func CreateBus(c *gin.Context)  {
 		return
 	}
 
-	database.DB.Create(&bus)
+	if err := database.DB.Create(&bus).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error" : "Gagal menambahkan bus!",
+		})
+		return
+	}
+
+	if err := database.DB.Model(&models.Company{}).
+		Where("id = ?", bus.CompanyID).
+		Update("total_bus", gorm.Expr("total_bus + ?", 1)).Error; err != nil {
+		
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error" : "Bus berhasil dibuat, tapi gagal diupdate total bus!",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message" : "Bus berhasil ditambahkan!",

@@ -20,4 +20,5 @@ type Bus struct {
 	DeletedAt 	gorm.DeletedAt	`gorm:"index"`
 
 	Schedule	[]Schedule		`gorm:"foreignKey:BusID"`
+	Company		Company			`gorm:"foreignKey:CompanyID" json:"company"`
 }

@@ -39,7 +39,6 @@ const handleOpenCreate = () => {
 }
 
 const handleOpenEdit = (data) => {
-    console.log('Data Edit', data);
     modalMode.value = 'edit';
     form.value = { ...data };
     openFormModal.value = true;

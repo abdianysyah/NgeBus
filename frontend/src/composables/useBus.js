@@ -4,9 +4,15 @@ import { getDataBus, editDataBus, postDataBus, deleteDataBus, detailDataBus } fr
 export function useBus() {
     const bus = ref([])
     const search = ref('')
+    const statusBus = ref('')
+    const classBus = ref('')
 
     const fetchDataBus = async () => {
-        const res = await getDataBus({ search: search.value })
+        const res = await getDataBus({ 
+            search: search.value,
+            status: statusBus.value,
+            bus_class: classBus.value
+        })
         bus.value = res.data.data
     }
 
@@ -18,6 +24,8 @@ export function useBus() {
     return {
         bus,
         search,
+        statusBus,
+        classBus,
         fetchDataBus,
         createBus,
         updateBus,

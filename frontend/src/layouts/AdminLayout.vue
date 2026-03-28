@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building  } from 'lucide-vue-next';
+import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building, Clock, TicketCheck  } from 'lucide-vue-next';
 import { RouterLink, useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 
@@ -61,14 +61,23 @@ const logout = () => {
                     <RouteIcon class="w-5" />
                     <span>Kelola Rute</span>
                 </RouterLink>
-                <RouterLink to="/admin/data-users" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-users') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
-                    <UserCircle class="w-5" />
-                    <span>Kelola Pengguna</span>
-                </RouterLink>
                 <RouterLink to="/admin/data-company" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-company') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <Building class="w-5" />
                     <span>Kelola Po Bus</span>
                 </RouterLink>
+                <RouterLink to="/admin/data-schedule" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-schedule') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
+                    <Clock class="w-5" />
+                    <span>Kelola Jadwal</span>
+                </RouterLink>
+                <RouterLink to="/admin/data-order" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-order') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
+                    <TicketCheck class="w-5" />
+                    <span>Kelola Order Tiket</span>
+                </RouterLink>
+                <RouterLink to="/admin/data-users" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-users') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
+                    <UserCircle class="w-5" />
+                    <span>Kelola Pengguna</span>
+                </RouterLink>
+
             </nav>
 
             <div class="pt-8 mt-8 border-t border-gray-200">
