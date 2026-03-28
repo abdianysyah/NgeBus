@@ -14,23 +14,28 @@ export const countData = (data) => {
     })
 }
 
+// API Data Bus
 export const getDataBus = (params) => {
-    return api.get("/bus", {
-        params: params
-    })
+    return api.get("/bus", { params })
 }
 
-export const addBus = (data) => {
+export const postDataBus = (data) => {
     return api.post("/bus", data)
 }
 
-export const editBus = (id, data) => {
+export const editDataBus = (id, data) => {
     return api.put(`/bus/${id}`, data)
 }
 
-export const deleteBus = (id) => {
+export const deleteDataBus = (id) => {
     return api.delete(`/bus/${id}`)
 }
+
+export const detailDataBus = (id) => {
+    return api.get(`/bus/${id}`)
+}
+
+
 
 export const getDataRoute = (data) => {
     return api.get("/route", data)

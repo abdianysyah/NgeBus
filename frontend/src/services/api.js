@@ -1,5 +1,5 @@
 import axios from "axios"
-import Swal from "sweetalert2"
+import { toast } from "vue3-toastify"
 
 const api = axios.create({
     baseURL: "http://localhost:8080/api"
@@ -7,8 +7,6 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token")
-
-    console.log("TOKEN:", token)
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
@@ -23,11 +21,7 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             localStorage.removeItem("token")
             window.location.href = "/login"
-            Swal.fire({
-                icon: "error",
-                title: 'Invalid Token',
-                text: 'Silahkan Login'
-            })
+            toast.error("Invalid Token")
         }
         return Promise.reject(error)
     }

@@ -1,141 +1,65 @@
 <script setup>
 import { PlusCircle, Search, Edit2Icon, Trash, Eye } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { nextTick, onMounted, ref } from 'vue';
-import { getDataBus, addBus, editBus, deleteBus } from '@/services/auth';
-import Modal from '@/components/ui/Modal.vue';
-import Swal from 'sweetalert2';
-const bus = ref([])
-const search = ref('')
-const status = ref('')
+import { onMounted, ref } from 'vue';
+import ModalForm from '@/components/bus/ModalForm.vue';
+import { useBus } from '@/composables/useBus';
+import { useCompany } from '@/composables/useCompany';
+import { toast } from 'vue3-toastify';
 
-const open = ref(false)
-const isEdit = ref(false)
+const { bus, search, fetchDataBus, createBus, updateBus, removeBus } = useBus()
+const { company, fetchCompany } = useCompany()
 
+const openBusModal = ref(false)
+const busForm = ref({})
+const modalMode = ref('create')
 
-
-const getAllDataBus = async () => {
-    try {
-        const res = await getDataBus({
-            search: search.value,
-            status: status.value
-        })
-        bus.value = res.data.data
-
-        await nextTick()
-    } catch {
-        console.error(error);
+const handleOpenCreate = () => {
+    modalMode.value = 'create'
+    busForm.value = {
+        company_id: '',
+        bus_name: '',
+        bus_number: '',
+        bus_class: '',
+        status: '',
+        total_seats: 0
     }
+    openBusModal.value = true
 }
 
-// Hapus Data Bus
-const deleteDataBus = async (id) => {
-    Swal.fire({
-        title: 'Yaking ingin menghapus?',
-        text: "Data bus akan dihapus permanen!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: '#f97316',
-        confirButtonColor: '#6b7280',
-        confirmButtonText: "Ya, Hapus!"
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                await deleteBus(id)
-                Swal.fire({
-                    icon: "success",
-                    title: "Berhasil",
-                    text: "Bus Berhasil dihapus!"
-                })
-                getAllDataBus()
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: "Gagal",
-                    text: error.response?.data?.error || "Terjadi Kesalahan"
-                })
-            }
-        }
-    })
+const handleOpenEdit = (data) => {
+    modalMode.value = 'edit'
+    busForm.value = { ...data }
+    openBusModal.value = true
 }
 
-// Tambah dan Edit Data Bus
-const openBusForm = async (data = null) => {
-    const { value } = await Swal.fire({
-        title: data ? 'Edit Bus' : 'Tambah Bus',
-        html: `
-            <input type="text" id="bus_name"
-                class="swal2-input"
-                placeholder="Nama Bus"
-                value="${data?.bus_name || ''}"
-            />
-
-            <input type="text" id="bus_number"
-                class="swal2-input"
-                placeholder="Plat No Bus"
-                value="${data?.bus_number || ''}"
-            />
-
-            <input id="total_seats"
-                type="number"
-                class="swal2-input"
-                placeholder="Jumlah Kursi"
-                value="${data?.total_seats || ''}"
-            />
-
-            <select id="status" class="swal2-input">
-                <option value="">Pilih Status</option>
-                <option value="active" ${data?.status === 'active' ? 'selected' : ''}>Active</option>
-                <option value="maintenance" ${data?.status === 'maintenance' ? 'selected' : ''}>Maintenance</option>
-                <option value="inactive" ${data?.status === 'inactive' ? 'selected' : ''}>Inactive</option>
-            </select>
-        `,
-        showCancelButton: true,
-        confirmButtonText: data ? "Update" : "Simpan",
-        focusConfirm: false,
-        preConfirm: () => {
-            const bus_name = document.getElementById("bus_name").value
-            const bus_number = document.getElementById("bus_number").value
-            const total_seats = Number(document.getElementById("total_seats").value)
-            const status = document.getElementById("status").value
-
-            if (!bus_name || !bus_number) {
-                Swal.showValidationMessage("Nama bus dan plat wajib diisi")
-                return false
-            }
-
-            return { bus_name, bus_number, total_seats, status }
-        }
-    })
-
-    if (!value) return
-
+const handleSubmitForm = async (data) => {
     try {
-        if (data) {
-            await editBus(data.id, value)
-        } else {
-            await addBus(value)
+        if (!data.company_id) {
+            toast.error("PO Bus wajib dipilih!", { autoClose: 1000 })
+            return
+        }
+        if (!data.bus_name) {
+            toast.error("Nama Bus wajib diisi", { autoClose: 1000 })
+            return
         }
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil',
-            text: 'Data berhasil disimpan!'
-        })
-
-        getAllDataBus()
-
+        if (modalMode.value === 'edit') {
+            await updateBus(data.id, data)
+            toast.success("Data berhasil diupdate!", { autoClose: 1000 })
+        } else {
+            await createBus(data)
+            toast.success("Bus berhasil ditambahkan!", { autoClose: 1000 })
+        }
+        await fetchDataBus()
     } catch (error) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: error.response?.data?.error || "Terjadi kesalahan!"
-        })
+        toast.error("Gagal simpan data!", { autoClose: 1000 })
     }
 }
 
 onMounted(() => {
-    getAllDataBus()
+    fetchDataBus()
+    fetchCompany()
 })
 
 </script>
@@ -148,7 +72,7 @@ onMounted(() => {
                 <p class="text-gray-600">Daftar semua armada bus yang terdaftar.</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <button @click="openBusForm()" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
+                <button @click="handleOpenCreate" class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
                     <PlusCircle class="mr-2" /> Tambah Bus
                 </button>
             </div>
@@ -181,9 +105,10 @@ onMounted(() => {
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PO Bus</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Plat Nomor</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Bus</th>
-                            <!-- <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th> -->
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kapasitas</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -193,16 +118,17 @@ onMounted(() => {
                         <template v-if="bus.length > 0">
                             <tr v-for="(item, index) in bus" :key="item.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.company_id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_number }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus_name }}</td>
-                                <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Eksklusif</td> -->
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.bus_class }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.total_seats }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="px-2 py-1 text-xs rounded-full" 
                                         :class="{
-                                            'bg-green-100 text-green-800' : item.status === 'active',
-                                            'bg-red-100 text-red-800' : item.status === 'nonactive',
-                                            'bg-yellow-100 text-yellow-800' : item.status === 'maintenance'
+                                            'bg-green-100 text-green-800' : item.status === 'Aktif',
+                                            'bg-red-100 text-red-800' : item.status === 'Nonaktif',
+                                            'bg-yellow-100 text-yellow-800' : item.status === 'Maintenance'
 
                                         }">{{ item.status }}</span>
                                 </td>
@@ -236,5 +162,14 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal Form -->
+        <ModalForm 
+            v-model="openBusModal"
+            :data="busForm"
+            :mode="modalMode"
+            :companies="company"
+            @submit="handleSubmitForm"
+        />
     </AdminLayout>
 </template>
