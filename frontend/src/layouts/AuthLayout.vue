@@ -1,19 +1,19 @@
 <script setup>
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 import { 
     Bus,
     Ticket,
     MapPin 
 } from 'lucide-vue-next';
 
-const route = useRouter()
+const route = useRoute ()
 
 const titles = {
-  login: {
+  Login: {
     title: "Selamat datang kembali",
     subtitle: "Silakan masuk ke akun Anda"
   },
-  register: {
+  Register: {
     title: "Buat akun baru",
     subtitle: "Daftar untuk mulai menggunakan sistem"
   },

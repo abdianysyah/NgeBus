@@ -1,20 +1,9 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
 const router = useRouter()
 const logout = () => {
-    Swal.fire({
-        icon: "warning",
-        title: "logout",
-        text: "Anda yakin ingin keluar?",
-        showCancelButton: true,
-        confirmButtonText: "Logout"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.clear()
-            router.push("/login")
-        }
-    })
+    localStorage.clear()
+    router.push("/login")
 }
 </script>
 

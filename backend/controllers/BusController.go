@@ -107,14 +107,22 @@ func UpdateBus(c *gin.Context)  {
 		return
 	}
 
-	if err := c.ShouldBindJSON(&bus); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error" : err.Error(),
-		})
-		return
-	}
+	oldCompanyID := bus.CompanyID
 
-	database.DB.Save(&bus)
+	var input models.Bus
+	c.ShouldBindJSON(&input)
+
+	database.DB.Model(&bus).Updates(input)
+
+	if oldCompanyID != input.CompanyID {
+		database.DB.Model(&models.Company{}).
+			Where("id = ?", oldCompanyID).
+			Update("total_bus", gorm.Expr("total_bus - ?", 1))
+
+		database.DB.Model(&models.Company{}).
+			Where("id = ?", input.CompanyID).
+			Update("total_bus", gorm.Expr("total_bus + ?", 1))
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message" : "Bus berhasil di update!",
@@ -125,13 +133,20 @@ func UpdateBus(c *gin.Context)  {
 func DeleteBus(c *gin.Context)  {
 	id := c.Param("id")
 
-	if err := database.DB.Delete(&models.Bus{}, id).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error" : "Gagal menghapus bus",
+	var bus models.Bus
+
+	if err := database.DB.First(&bus, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error" : "Bus tidak ditemukan!",
 		})
 		return
-
 	}
+
+	database.DB.Delete(&bus)
+
+	database.DB.Model(&models.Company{}).
+		Where("id = ?", bus.CompanyID).
+		Update("total_bus", gorm.Expr("total_bus - ?", 1))
 
 	c.JSON(http.StatusOK, gin.H{
 		"message" : "Bus berhasil dihapus!",

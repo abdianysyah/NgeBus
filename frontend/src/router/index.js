@@ -23,12 +23,12 @@ const router = createRouter({
     },
     {
       path: '/login',
-      name: 'login',
+      name: 'Login',
       component: Login
     },
     {
       path: '/register',
-      name: 'register',
+      name: 'Register',
       component: Register
     },
     {
@@ -94,7 +94,8 @@ const router = createRouter({
   
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
+  document.title = to.name || "NgeBus"
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
 
@@ -102,22 +103,22 @@ router.beforeEach((to, from, next) => {
   const authRequired = !publicPages.includes(to.path)
 
   if (authRequired && !token) {
-    return next("/login")
+    return "/login"
   }
 
   if (token && to.path === "/login") {
     if (role === "admin") {
-      return next("/admin/dashboard")
+      return "/admin/dashboard"
     } else {
-      return next("/dashboard")
+      return "/dashboard"
     }
   }
 
   if (to.path.startsWith("/admin") && role !== "admin") {
-    return next("/dashboard")
+    return "/dashboard"
   }
 
-  next()
+  return true
 })
 
 export default router

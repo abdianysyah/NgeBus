@@ -4,7 +4,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import { RouterLink } from 'vue-router';
 import { Eye } from 'lucide-vue-next';
 import { register } from '@/services/auth';
-import Swal from 'sweetalert2';
+import { toast } from 'vue3-toastify';
 
 const name = ref("")
 const email = ref("")
@@ -16,10 +16,7 @@ const showPassword = ref(false)
 
 const handleRegister = async () => {
     if (password.value !== confirmPassword.value) {
-        Swal.fire({
-            icon: "error",
-            title: "Password tidak sama!"
-        })
+        toast.error("Password tidak sama!", {autoClose:1000})
         return
     }
 
@@ -33,15 +30,9 @@ const handleRegister = async () => {
             password: password.value
         })
 
-        Swal.fire({
-            icon: "success",
-            title: "Register berhasil"
-        })
+        toast.success("Akun berhasil diregistrasi!", {autoClose:1000})
     } catch (error) {
-        Swal.fire({
-            icon: "error",
-            title: "Register gagal"
-        })
+        toast.error("Registrasi akun gagal!", {autoClose:1000})
     } finally {
         loading.value = false
     }

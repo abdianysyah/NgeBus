@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building, Clock, TicketCheck  } from 'lucide-vue-next';
 import { RouterLink, useRouter, useRoute } from 'vue-router';
-import Swal from 'sweetalert2';
 
 const route = useRoute()
 const router = useRouter()
@@ -21,18 +20,8 @@ const closeSidebar = () => {
 }
 
 const logout = () => {
-    Swal.fire({
-        icon: "warning",
-        title: "logout",
-        text: "Anda yakin ingin keluar?",
-        showCancelButton: true,
-        confirmButtonText: "Logout"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.clear()
-            router.push("/login")
-        }
-    })
+    localStorage.clear()
+    router.push("/login")
 }
 
 </script>

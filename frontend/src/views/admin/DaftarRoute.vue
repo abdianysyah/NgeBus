@@ -9,7 +9,6 @@ import {
     Eye                         
  } from 'lucide-vue-next';
 import { getDataRoute, postDataRoute, editDataRoute, deleteDataRoute  } from '@/services/auth';
-import Swal from 'sweetalert2';
 
 const rute = ref([])
 const search = ref('')
@@ -27,101 +26,7 @@ const getAllRoute = async () => {
 }
 
 // Tambah dan Edit Data Bus
-const FormDataRoute = async (data = null) => {
-    const { value } = await Swal.fire({
-        title: data ? 'Edit Rute' : 'Tambah Rute',
-        html: ` 
-            <input type="text" id="origin"
-                class="swal2-input"
-                placeholder="Kota Asal"
-                value="${data?.origin || ''}"
-            />
 
-            <input type="text" id="destination"
-                class="swal2-input"
-                placeholder="Kota Tujuan"
-                value="${data?.destination || ''}"
-            />
-
-            <input id="distance"
-                type="number"
-                class="swal2-input"
-                placeholder="Waktu Tempuh (menit)"
-                value="${data?.distance || ''}"
-            />
-        `,
-        showCancelButton: true,
-        confirmButtonText: data ? "Update" : "Simpan",
-        focusConfirm: false,
-        preConfirm: () => {
-            const origin = document.getElementById("origin").value
-            const destination = document.getElementById("destination").value
-            const distance = Number(document.getElementById("distance").value)
-
-            if (!origin || !destination) {
-                Swal.showValidationMessage("Kota Asal & Tujuan Wajib diisi!")
-                return false
-            }
-
-            return { origin, destination, distance }
-        }
-    })
-
-    if (!value) return
-
-    try {
-        if (data) {
-            await editBus(data.id, value)
-        } else {
-            await postDataRoute(value)
-        }
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil',
-            text: 'Data berhasil disimpan!'
-        })
-
-        getAllRoute()
-
-    } catch (error) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: error.response?.data?.error || "Terjadi kesalahan!"
-        })
-    }
-}
-
-const deleteRoute = async (id) => {
-    Swal.fire({
-        title: 'Yaking ingin menghapus?',
-        text: "Data bus akan dihapus permanen!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: '#f97316',
-        confirButtonColor: '#6b7280',
-        confirmButtonText: "Ya, Hapus!"
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                await deleteDataRoute(id)
-                Swal.fire({
-                    icon: "success",
-                    title: "Berhasil",
-                    text: "Bus Berhasil dihapus!"
-                })
-                getAllRoute()
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: "Gagal",
-                    text: error.response?.data?.error || "Terjadi Kesalahan"
-                })
-            }
-        }
-    })
-}
 
 onMounted(() => {
     getAllRoute()
