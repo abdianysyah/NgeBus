@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { 
     PlusCircle,
@@ -8,28 +8,86 @@ import {
     Trash,
     Eye                         
  } from 'lucide-vue-next';
-import { getDataRoute, postDataRoute, editDataRoute, deleteDataRoute  } from '@/services/auth';
+import { toast } from 'vue3-toastify';
+import ModalForm from '@/components/route/ModalForm.vue';
+import ModalDelete from '@/components/route/ModalDelete.vue';
+import { useRouteBus } from '@/composables/useRouteBus';
 
-const rute = ref([])
-const search = ref('')
+const { rute, search, fetchDataRoute, createRoute, updateRoute, removeRoute } = useRouteBus();
 
+let timeout = null
 
-const getAllRoute = async () => {
+watch(search, (value) => {
+    clearTimeout(timeout)
+
+    timeout = setTimeout(() => {
+        fetchDataRoute()
+    }, 500)
+})
+
+const openFormModal = ref(false)
+const openDeleteModal = ref(false)
+
+const form = ref({
+    id: null,
+    origin: '',
+    destination: '',
+    distance: 0
+})
+
+const modalMode = ref('create');
+const selectedId = ref(null);
+
+const handleOpenCreate = () => {
+    modalMode.value = 'create';
+    form.value = { id: null, origin: '', destination: '', distance: 0 };
+    openFormModal.value = true;
+}
+
+const handleOpenEdit = (data) => {
+    modalMode.value = 'edit';
+    form.value = { ...data };
+    openFormModal.value = true;
+}
+
+const handleOpenDelete = (item) => {
+    selectedId.value = item.id
+    openDeleteModal.value = true
+}
+
+const handleSubmitForm = async (data) => {
     try {
-        const res = await getDataRoute({
-            search: search.value
-        })
-        rute.value = res.data.data
+        if (!data.origin && data.destination) {
+            toast.error("Kota Asal & Kota Tujuan wajib diisi!", { autoClose: 1000 });
+            return;
+        }
+
+        if (modalMode.value === 'edit') {
+            await updateRoute(data.id, data);
+            toast.success("Data berhasil diupdate!", { autoClose: 1000 });
+        } else {
+            await createRoute(data);
+            toast.success("Data berhasil ditambahkan", { autoClose:1000 });
+        }
+
+        await fetchDataRoute();
     } catch (error) {
-        console.error(error);
+        toast.error("Gagal menyimpan data!", { autoClose:1000 })
     }
 }
 
-// Tambah dan Edit Data Bus
-
+const handleDelete = async () => {
+    try {
+        await removeRoute(selectedId.value);
+        toast.success("Data berhasil dihapus!", { autoClose: 1000 });
+        await fetchDataRoute();
+    } catch (error) {
+        toast.error("Gagal menghapus data!", { autoClose: 1000 });
+    }
+}
 
 onMounted(() => {
-    getAllRoute()
+    fetchDataRoute();
 })
 </script>
 
@@ -41,7 +99,7 @@ onMounted(() => {
                 <p class="text-gray-600">Daftar semua rute</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <button @click="FormDataRoute()"  class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
+                <button @click="handleOpenCreate"  class="bg-orange-500 hover:bg-orange-600 hover:shadow-none text-white font-semibold px-5 py-3 rounded-xl shadow-md transition inline-flex items-center">
                     <PlusCircle class="mr-2" /> Tambah Rute
                 </button>
             </div>
@@ -61,7 +119,7 @@ onMounted(() => {
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kota Asal</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kota Tujuan</th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu Tempuh (Menit)</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jarak Tempuh (KM)</th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
@@ -71,15 +129,15 @@ onMounted(() => {
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.origin }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.destination }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.distance }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.distance }} Km</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-700 flex justify-center gap-2">
-                                    <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <!-- <button class="px-2 py-2 bg-amber-500 hover:bg-amber-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Eye class="w-5 h-5" />
-                                    </button>
-                                    <button @click="FormDataRoute(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
+                                    </button> -->
+                                    <button @click="handleOpenEdit(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
                                         <Edit2Icon class="w-5 h-5" />
                                     </button>
-                                    <button @click="deleteRoute(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
+                                    <button @click="handleOpenDelete(item.id)" class="px-2 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md transition ease-in-out" title="Hapus">
                                         <Trash class="w-5 h-5" />
                                     </button>
                                 </td>
@@ -102,5 +160,17 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+
+        <ModalForm
+            v-model="openFormModal"
+            :data="form"
+            :mode="modalMode"
+            @submit="handleSubmitForm"
+        />
+
+        <ModalDelete
+            v-model="openDeleteModal"
+            @confirm="handleDelete"
+        />
     </AdminLayout>
 </template>

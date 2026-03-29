@@ -12,13 +12,15 @@ import BusView from '@/views/BusView.vue'
 import RuteView from '@/views/RuteView.vue'
 import ContactView from '@/views/ContactView.vue'
 import DaftarCompany from '@/views/admin/DaftarCompany.vue'
+import DaftarSchedule from '@/views/admin/DaftarSchedule.vue'
+import DaftarOrder from '@/views/admin/DaftarOrder.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'Beranda',
       component: HomeView,
     },
     {
@@ -48,7 +50,7 @@ const router = createRouter({
     },
     {
       path: "/admin/dashboard",
-      name: 'Dashboard Admin',
+      name: 'Dashboard',
       component: DashboardAdmin
     },
     {
@@ -70,6 +72,16 @@ const router = createRouter({
       path: "/admin/data-company",
       name: 'Daftar PO Bus',
       component: DaftarCompany
+    },
+    {
+      path: "/admin/data-schedule",
+      name: 'Daftar Jadwal',
+      component: DaftarSchedule
+    },
+    {
+      path: "/admin/data-order",
+      name: 'Daftar Order',
+      component: DaftarOrder
     },
     {
       path: "/dashboard",
@@ -95,7 +107,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  document.title = to.name || "NgeBus"
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
 
@@ -119,6 +130,11 @@ router.beforeEach((to) => {
   }
 
   return true
+})
+
+router.afterEach((to) => {
+  const baseTitle = "Ngebus"
+  document.title = to.name ? `${to.name} - ${baseTitle}` : baseTitle 
 })
 
 export default router
