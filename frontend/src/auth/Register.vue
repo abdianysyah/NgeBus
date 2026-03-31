@@ -85,6 +85,9 @@ const togglePassword = () => {
                 Sudah punya akun?
                 <RouterLink to="/login" class="text-orange-600 hover:text-orange-700 font-semibold">Masuk disini</RouterLink>
             </p>
+            <div class="text-center">
+              <RouterLink to="/" class="text-orange-600 hover:text-orange-700 font-semibold">Kembali ke beranda</RouterLink>
+            </div>
         </form>
     </AuthLayout>
 </template>

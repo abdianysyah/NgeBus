@@ -15,6 +15,6 @@ type Schedule struct {
 	UpdatedAt		time.Time
 	DeletedAt		gorm.DeletedAt	`gorm:"index"`
 
-	Bus				Bus			`gorm:"foreignKey:BusID"`
-	Route			Route		`gorm:"foreignKey:RouteID"`
+	Bus				Bus			`gorm:"foreignKey:BusID" json:"bus"`
+	Route			Route		`gorm:"foreignKey:RouteID" json:"route"`
 }

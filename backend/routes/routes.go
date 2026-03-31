@@ -13,18 +13,21 @@ func UserRoutes(router *gin.Engine)  {
 		auth.POST("/login", controllers.Login)
 	}
 
+	public := router.Group("/api/")
+	{
+		public.GET("/bus", controllers.GetAllBus)
+		public.GET("/bus/:id", controllers.GetBusByID)
+		public.GET("/route", controllers.GetAllRoute)
+		public.GET("/route/:id", controllers.GetRouteByID)
+		public.GET("/company", controllers.GetAllCompany)
+		public.GET("/company/:id", controllers.GetCompanyByID)
+		public.GET("/schedule", controllers.GetAllSchedule)
+	}
+
 	user := router.Group("/api/")
 	user.Use(middlewares.AuthMiddleware())
 	{
 		user.GET("/user/dashboard", controllers.UserDashboard)
-		user.GET("/bus", controllers.GetAllBus)
-		user.GET("/bus/:id", controllers.GetBusByID)
-		user.GET("/route", controllers.GetAllRoute)
-		user.GET("/route/:id", controllers.GetRouteByID)
-		user.GET("/company", controllers.GetAllCompany)
-		user.GET("/company/:id", controllers.GetCompanyByID)
-		user.GET("/schedule", controllers.GetAllSchedule)
-		user.GET("/ticket", controllers.GetAllTicket)
 	}
 
 	admin := router.Group("/api/")

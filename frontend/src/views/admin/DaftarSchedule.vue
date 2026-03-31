@@ -180,9 +180,9 @@ onMounted(() => {
                         <template v-if="schedule.length > 0">
                             <tr v-for="(item, index) in schedule" :key="item.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.Bus?.company?.name_company }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.Bus?.bus_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.Route?.origin }} -> {{ item.Route?.destination }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus?.company?.name_company }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.bus?.bus_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ item.route?.origin }} -> {{ item.route?.destination }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ formatDate(item.departure_time) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-700 flex justify-center gap-2">
                                     <button @click="handleOpenEdit(item)" class="px-2 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition ease-in-out" title="Edit">
@@ -219,6 +219,12 @@ onMounted(() => {
             :buses="bus"
             :routes="rute"
             @submit="handleSubmitForm"
+        />
+
+        <ModalDelete 
+            v-model="openDeleteModal"
+            :name="selectedName"
+            @confirm="handleConfirmDelete"
         />
     </AdminLayout>
 </template>

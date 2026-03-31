@@ -115,6 +115,9 @@ const handleLogin = async () => {
                 Belum punya akun?
                 <RouterLink to="/register" class="text-orange-600 hover:text-orange-700 font-semibold">Daftar Sekarang</RouterLink>
             </p>
+            <div class="text-center">
+              <RouterLink to="/" class="text-orange-600 hover:text-orange-700 font-semibold">Kembali ke beranda</RouterLink>
+            </div>
         </form>
     </AuthLayout>
 </template>

@@ -42,6 +42,7 @@ func Connect() {
 		&models.Schedule{},
 		&models.Order{},
 		&models.Ticket{},
+		&models.City{},
 	)
 
 	if err != nil {

@@ -56,6 +56,7 @@ const handleOpenDelete = (item) => {
 }
 
 const handleSubmitForm = async (data) => {
+    const toastId = toast.loading("Sedang memproses rute...")
     try {
         if (!data.origin && data.destination) {
             toast.error("Kota Asal & Kota Tujuan wajib diisi!", { autoClose: 1000 });
@@ -64,12 +65,21 @@ const handleSubmitForm = async (data) => {
 
         if (modalMode.value === 'edit') {
             await updateRoute(data.id, data);
-            toast.success("Data berhasil diupdate!", { autoClose: 1000 });
+            toast.update(toastId, {
+                render: "Rute berhasil diupdate!",
+                type:"success",
+                isLoading: false,
+                autoClose: 1500
+            });
         } else {
             await createRoute(data);
-            toast.success("Data berhasil ditambahkan", { autoClose:1000 });
+            toast.update(toastId, {
+                render: "Rute berhasil ditambahkan!",
+                type: "success",
+                isLoading: false,
+                autoClose: 1500
+            });
         }
-
         await fetchDataRoute();
     } catch (error) {
         toast.error("Gagal menyimpan data!", { autoClose:1000 })

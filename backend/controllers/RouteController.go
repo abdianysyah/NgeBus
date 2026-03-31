@@ -1,8 +1,10 @@
 package controllers
 
-
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/abdianysyah/backend/database"
 	"github.com/abdianysyah/backend/models"
@@ -43,7 +45,27 @@ func CreateRoute(c *gin.Context)  {
 		return
 	}
 
-	database.DB.Create(&routes)
+	originCity, err1 := getOrCreateCity(routes.Origin)
+	destCity, err2 := getOrCreateCity(routes.Destination)
+
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error" : "Kota tidak ditemukan",
+		})
+		return
+	}
+
+	routes.OriginLat = originCity.Lat
+	routes.OriginLng = originCity.Lng
+	routes.DestLat = destCity.Lat
+	routes.DestLng = destCity.Lng
+
+	if err := database.DB.Create(&routes).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error" : "Gagal menyimpan rute",
+		})		
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message" : "Rute berhasil ditambahkan!",
@@ -81,11 +103,32 @@ func UpdateRoute(c *gin.Context)  {
 		return
 	}
 
-	if err := c.ShouldBindJSON(&routes); err != nil {
+	var input models.Route
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error" : err.Error(),
 		})
+		return
 	}
+
+	routes.Origin = input.Origin
+	routes.Destination = input.Destination
+	routes.Distance = input.Distance
+
+	originCity, err1 := getOrCreateCity(routes.Origin)
+	destCity, err2 := getOrCreateCity(routes.Destination)
+
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Kota tidak ditemukan",
+		})
+		return
+	}
+
+	routes.OriginLat = originCity.Lat
+	routes.OriginLng = originCity.Lng
+	routes.DestLat = destCity.Lat
+	routes.DestLng = destCity.Lng
 
 	database.DB.Save(&routes)
 
@@ -108,4 +151,56 @@ func DeleteRoute(c *gin.Context)  {
 	c.JSON(http.StatusOK, gin.H{
 		"message" : "Rute berhasil dihapus!",
 	})
+}
+
+func getCoordinates(city string) (float64, float64)  {
+	url := "https://nominatim.openstreetmap.org/search?q=" + city + "&format=json&limit=1"
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "NgeBus")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, 0
+	}
+
+	defer resp.Body.Close()
+
+	var data []map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&data)
+
+	if len(data) == 0 {
+		return 0, 0
+	}
+
+	lat, _ := strconv.ParseFloat(data[0]["lat"].(string), 64)
+	lng, _ := strconv.ParseFloat(data[0]["lon"].(string), 64)
+
+	return lat, lng
+}
+
+func getOrCreateCity(cityName string) (models.City, error)  {
+	var city models.City
+
+	err := database.DB.Where("name = ?", cityName).First(&city).Error
+	if err == nil {
+		return city, nil
+	}
+
+	lat, lng := getCoordinates(cityName)
+
+	if lat == 0 {
+		return city, errors.New("Kota tidak ditemukan")
+	}
+
+	city = models.City{
+		Name: cityName,
+		Lat: lat,
+		Lng: lng,
+	}
+
+	database.DB.Create(&city)
+
+	return city, nil
 }
