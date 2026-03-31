@@ -1,14 +1,15 @@
 <script setup>
 import { onMounted, ref, nextTick } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Bus, Ticket, Users, Building, TriangleAlert, TriangleAlertIcon } from 'lucide-vue-next';
+import { Bus, Ticket, Users, Building } from 'lucide-vue-next';
 import { Chart } from 'chart.js/auto';
 import { countData } from '@/services/auth';
 
 const monthlyChart = ref(null)
-const statusChart = ref(null)
+const statusChartCanvas = ref(null)
 const dashboardData = ref({})
 const ChartData = ref([])
+const statusChartData = ref([])
 
 const getDashboardData = async () => {
     try {
@@ -16,9 +17,17 @@ const getDashboardData = async () => {
         dashboardData.value = res.data.data
         const currentMonth = new Date().getMonth() + 1
         ChartData.value = res.data.data.monthly_orders.slice(0, currentMonth)
+        const status = res.data.data.status_order
+
+        statusChartData.value = [
+            status.berhasil,
+            status.pending,
+            status.dibatalkan
+        ]
 
         await nextTick()
         createChart()
+        createStatusChart()
     } catch (error) {
         console.error(error);
     }
@@ -51,15 +60,15 @@ const createChart = () => {
     })
 }
 
-onMounted(() => {
 
-    new Chart(statusChart.value, {
+const createStatusChart = () => {
+    new Chart(statusChartCanvas.value, {
         type: 'doughnut',
         data: {
-            labels: ['Selesai', 'Diproses', 'Dijadwalkan', 'Dibatalkan'],
+            labels: ['Berhasil', 'Pending', 'Dibatalkan'],
             datasets: [{
-                data: [540, 210, 135, 45],
-                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+                data: statusChartData.value, // 🔥 dari backend
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
                 borderWidth: 0,
                 hoverOffset: 5
             }]
@@ -75,8 +84,9 @@ onMounted(() => {
                 }
             }
         }
-    });
-
+    })
+}
+onMounted(() => {
     getDashboardData()
 })
 </script>
@@ -138,9 +148,8 @@ onMounted(() => {
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Status Pemesanan</h3>
-                <p class="text-sm text-gray-500">Maintenance Mode</p>
                 <div class="relative flex items-center justify-center">
-                    <canvas ref="statusChart" class="max-h-full max-w-full"></canvas>
+                    <canvas ref="statusChartCanvas" class="max-h-full max-w-full"></canvas>
                 </div>
             </div>
         </div>

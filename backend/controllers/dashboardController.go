@@ -60,6 +60,26 @@ func AdminDashboard(c *gin.Context)  {
 		monthlyOrders[r.Month-1] = r.Total
 	}
 
+	type StatusOrder struct {
+		Pending int64 `json:"pending"`
+		Berhasil int64 `json:"berhasil"`
+		Gagal int64 `json:"gagal"`
+	}
+
+	var statusOrder StatusOrder
+
+	database.DB.Model(&models.Order{}).
+		Where("status = ?", "Pending").
+		Count(&statusOrder.Pending)
+
+	database.DB.Model(&models.Order{}).
+		Where("status = ?", "Berhasil").
+		Count(&statusOrder.Berhasil)
+
+	database.DB.Model(&models.Order{}).
+		Where("status = ?", "Gagal").
+		Count(&statusOrder.Gagal)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Admin dashboard data",
 		"data": gin.H{
@@ -69,6 +89,7 @@ func AdminDashboard(c *gin.Context)  {
 			"total_schedules": totalSchedules,
 			"total_company": totalCompany,
 			"monthly_orders": monthlyOrders,
+			"status_order": statusOrder,
 		},
 	})
 }

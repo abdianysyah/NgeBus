@@ -35,7 +35,7 @@ export const detailDataBus = (id) => {
     return api.get(`/bus/${id}`)
 }
 
-
+// API Data Route
 
 export const getDataRoute = (data) => {
     return api.get("/route", data)
@@ -52,6 +52,8 @@ export const deleteDataRoute = (id) => {
 export const editDataRoute = (id, data) => {
     return api.put(`/route/${id}`, data)
 }
+
+// API Data Company
 
 export const getDataCompany = (params) => {
     return api.get("/company", { params })
@@ -71,4 +73,40 @@ export const deleteDataCompany = (id) => {
 
 export const detailDataCompany = (id) => {
     return api.get(`/company/${id}`)
+}
+
+// API Data Schedule
+
+export const getDataSchedule = (params) => {
+    return api.get("/schedule", { params })
+}
+
+export const postDataSchedule = (data) => {
+    return api.post("/schedule", data)
+}
+
+export const editDataSchedule = (id, data) => {
+    return api.put(`/schedule/${id}`, data)
+}
+
+export const deleteDataSchedule = (id) => {
+    return api.delete(`/schedule/${id}`)
+}
+
+// API Data Ticket
+
+export const getDataTicket = (params) => {
+    return api.get("/ticket", { params })
+}
+
+export const postDataTicket = (data) => {
+    return api.post("/ticket", data)
+}
+
+export const editDataTicket = (id, data) => {
+    return api.put(`/ticket/${id}`, data)
+}
+
+export const deleteDataTicket = (id) => {
+    return api.delete(`/ticket/${id}`)
 }

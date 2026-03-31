@@ -1,11 +1,13 @@
 <script setup>
-import { ref } from 'vue';
-import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building, Clock, TicketCheck  } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
+import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building, Clock, TicketCheck, UserCircleIcon  } from 'lucide-vue-next';
 import { RouterLink, useRouter, useRoute } from 'vue-router';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 
 const route = useRoute()
 const router = useRouter()
 const sidebarOpen = ref(false)
+const user = ref(null)
 
 const isActive = (path) => {
     return route.path === path
@@ -23,6 +25,13 @@ const logout = () => {
     localStorage.clear()
     router.push("/login")
 }
+
+onMounted(() => {
+    const data = localStorage.getItem('user')
+    if (data) {
+        user.value = JSON.parse(data)
+    }
+})
 
 </script>
 
@@ -66,18 +75,7 @@ const logout = () => {
                     <UserCircle class="w-5" />
                     <span>Kelola Pengguna</span>
                 </RouterLink>
-
             </nav>
-
-            <div class="pt-8 mt-8 border-t border-gray-200">
-                <button @click="logout" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition">
-                    <LogOut class="w-5" />
-                    <span>Log Out</span>
-                </button>
-            </div>
-            <p class="text-xs text-gray-400 mt-8">
-                &copy; 2026 NgeBus
-            </p>
         </div>
     </aside>
 
@@ -88,15 +86,53 @@ const logout = () => {
                 <button @click="toggleSidebar" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none mr-2">
                     <MenuIcon class="text-2xl" />
                 </button>
-                <div class="flex items-center space-x-3 ml-auto">
-                    <span class="hidden sm:inline text-sm text-gray-700">Admin, Budi</span>
-                    <div class="relative">
-                        <button class="flex items-center focus:outline-none">
-                            <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="Profil" class="w-9 h-9 rounded-full object-cover border-2 border-orange-200">
-                            <i class="fas fa-chevron-down ml-1 text-xs text-gray-500"></i>
-                        </button>
-                    </div>
-                </div>
+                <Menu as="div" class="relative flex items-center ml-auto">
+                  <MenuButton class="flex items-center focus:outline-none hover:bg-gray-100 rounded-full px-2 py-1 transition">
+                    <span class="hidden sm:inline text-sm text-gray-700 mr-2">
+                      {{ user ? `${user.name}` : 'Maintenance Mode' }}
+                    </span>
+                    <img
+                      src="https://randomuser.me/api/portraits/men/2.jpg"
+                      class="w-9 h-9 rounded-full border-2 border-orange-200"
+                    />
+                  </MenuButton>
+              
+                  <transition
+                    enter-active-class="transition duration-100 ease-out"
+                    enter-from-class="transform scale-95 opacity-0"
+                    enter-to-class="transform scale-100 opacity-100"
+                    leave-active-class="transition duration-75 ease-in"
+                    leave-from-class="transform scale-100 opacity-100"
+                    leave-to-class="transform scale-95 opacity-0"
+                  >
+                    <MenuItems class="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 z-50">
+                      <div class="px-1 py-1">
+                        <MenuItem v-slot="{ active }">
+                          <button
+                            :class="[
+                              active ? 'bg-orange-500 text-white' : 'text-gray-500',
+                              'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                            ]"
+                          >
+                            <UserCircleIcon class="mr-2 h-5 w-5" />
+                            Profil Saya
+                          </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                          <button @click="logout"
+                            :class="[
+                              active ? 'bg-orange-500 text-white' : 'text-gray-500',
+                              'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                            ]"
+                          >
+                            <LogOut class="mr-2 h-5 w-5" />
+                            Keluar
+                          </button>
+                        </MenuItem>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
             </div>
         </header>
 
