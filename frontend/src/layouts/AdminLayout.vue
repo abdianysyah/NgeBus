@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building, Clock, TicketCheck, UserCircleIcon  } from 'lucide-vue-next';
+import { X, LayoutDashboard, BusFrontIcon, RouteIcon, UserCircle, LogOut, MenuIcon, Building, Clock, TicketCheck, UserCircleIcon, Clock3, Wallet  } from 'lucide-vue-next';
 import { RouterLink, useRouter, useRoute } from 'vue-router';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 
@@ -51,29 +51,53 @@ onMounted(() => {
                     <LayoutDashboard class="w-5" />
                     <span>Dashboard</span>
                 </RouterLink>
+            </nav>
+            <div class="mt-6 mb-2 px-4 text-gray-400">
+              <p class="text-xs font-semibold uppercase tracking-wider">Manage Data</p>
+            </div>
+            <nav class="space-y-1">
+
                 <RouterLink to="/admin/data-bus" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-bus') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <BusFrontIcon class="w-5" />
-                    <span>Kelola Bus</span>
+                    <span>Manajemen Bus</span>
                 </RouterLink>
                 <RouterLink to="/admin/data-route" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-route') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <RouteIcon class="w-5" />
-                    <span>Kelola Rute</span>
+                    <span>Manajemen Rute</span>
                 </RouterLink>
                 <RouterLink to="/admin/data-company" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-company') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <Building class="w-5" />
-                    <span>Kelola Po Bus</span>
+                    <span>Manajemen Po Bus</span>
                 </RouterLink>
                 <RouterLink to="/admin/data-schedule" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-schedule') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <Clock class="w-5" />
-                    <span>Kelola Jadwal</span>
+                    <span>Manajemen Jadwal</span>
                 </RouterLink>
                 <RouterLink to="/admin/data-order" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-order') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <TicketCheck class="w-5" />
-                    <span>Kelola Order Tiket</span>
+                    <span>Manajemen Order Tiket</span>
                 </RouterLink>
                 <RouterLink to="/admin/data-users" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/data-users') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
                     <UserCircle class="w-5" />
-                    <span>Kelola Pengguna</span>
+                    <span>Manajemen Pengguna</span>
+                </RouterLink>
+            </nav>
+
+            <div class="mt-6 mb-2 px-4 text-gray-400">
+              <p class="text-xs font-semibold uppercase tracking-wider">Analytics Data</p>
+            </div>
+            <nav class="space-y-1">
+                <RouterLink to="/admin/analyst-route" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-route') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']">
+                    <RouteIcon class="w-5" />
+                    <span>Analytics Rute</span>
+                </RouterLink>
+                <RouterLink to="/admin/analyst-time" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-time') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
+                    <Clock3 class="w-5" />
+                    <span>Analytics Waktu</span>
+                </RouterLink>
+                <RouterLink to="/admin/analyst-time" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-time') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
+                    <Wallet class="w-5" />
+                    <span>Analytics Pendapatan</span>
                 </RouterLink>
             </nav>
         </div>
