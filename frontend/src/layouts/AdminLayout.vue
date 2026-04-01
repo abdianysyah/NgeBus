@@ -91,11 +91,11 @@ onMounted(() => {
                     <RouteIcon class="w-5" />
                     <span>Analytics Rute</span>
                 </RouterLink>
-                <RouterLink to="/admin/analyst-time" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-time') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
+                <!-- <RouterLink to="/admin/analyst-time" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-time') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
                     <Clock3 class="w-5" />
                     <span>Analytics Waktu</span>
-                </RouterLink>
-                <RouterLink to="/admin/analyst-time" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-time') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
+                </RouterLink> -->
+                <RouterLink to="/admin/analyst-income" :class="['flex items-center space-x-3 px-4 py-3 rounded-xl font-medium', isActive('/admin/analyst-income') ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-100']" >
                     <Wallet class="w-5" />
                     <span>Analytics Pendapatan</span>
                 </RouterLink>

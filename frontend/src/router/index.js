@@ -14,6 +14,8 @@ import ContactView from '@/views/ContactView.vue'
 import DaftarCompany from '@/views/admin/DaftarCompany.vue'
 import DaftarSchedule from '@/views/admin/DaftarSchedule.vue'
 import DaftarOrder from '@/views/admin/DaftarOrder.vue'
+import AnalystRoute from '@/views/admin/AnalystRoute.vue'
+import AnalystCuan from '@/views/admin/AnalystCuan.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -82,6 +84,16 @@ const router = createRouter({
       path: "/admin/data-order",
       name: 'Daftar Order',
       component: DaftarOrder
+    },
+    {
+      path: "/admin/analyst-route",
+      name: 'Analyst Route',
+      component: AnalystRoute
+    },
+    {
+      path: "/admin/analyst-income",
+      name: 'Analyst Penghasilan',
+      component: AnalystCuan
     },
     {
       path: "/dashboard",

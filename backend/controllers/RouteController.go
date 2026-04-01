@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/abdianysyah/backend/database"
 	"github.com/abdianysyah/backend/models"
@@ -153,29 +152,32 @@ func DeleteRoute(c *gin.Context)  {
 	})
 }
 
-func getCoordinates(city string) (float64, float64)  {
-	url := "https://nominatim.openstreetmap.org/search?q=" + city + "&format=json&limit=1"
+// Update, nomatim mati!
+func getCoordinates(city string) (float64, float64) {
+	url := "https://photon.komoot.io/api/?q=" + city + "&limit=1"
 
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("User-Agent", "NgeBus")
+	req.Header.Set("User-Agent", "NgeBus App")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return 0, 0
 	}
-
 	defer resp.Body.Close()
 
-	var data []map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&data)
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
 
-	if len(data) == 0 {
+	features := result["features"].([]interface{})
+	if len(features) == 0 {
 		return 0, 0
 	}
 
-	lat, _ := strconv.ParseFloat(data[0]["lat"].(string), 64)
-	lng, _ := strconv.ParseFloat(data[0]["lon"].(string), 64)
+	coords := features[0].(map[string]interface{})["geometry"].(map[string]interface{})["coordinates"].([]interface{})
+
+	lng := coords[0].(float64)
+	lat := coords[1].(float64)
 
 	return lat, lng
 }
